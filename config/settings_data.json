@@ -1,40 +1,65 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "current": {
+    "sections": {
+      "cart-drawer": {
+        "type": "cart-drawer",
+        "settings": {
+          "color_scheme": "scheme-1"
+        }
+      }
+    },
+    "content_for_index": [],
+    "blocks": {
+      "14060646107696862457": {
+        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {}
+      }
+    },
     "color_schemes": {
       "scheme-1": {
         "settings": {
-          "background": "#F7F4EF",
+          "background": "#f7f4ef",
           "background_gradient": "",
-          "text": "#1F1C1A",
-          "text_muted": "#6B635C",
-          "accent": "#8A5A3F",
-          "line": "#D9D0C3",
-          "button": "#1F1C1A",
-          "button_label": "#F7F4EF"
+          "text": "#1f1c1a",
+          "text_muted": "#6b635c",
+          "accent": "#8a5a3f",
+          "line": "#d9d0c3",
+          "button": "#1f1c1a",
+          "button_label": "#f7f4ef"
         }
       },
       "scheme-2": {
         "settings": {
-          "background": "#EDE6DC",
+          "background": "#ede6dc",
           "background_gradient": "",
-          "text": "#1F1C1A",
+          "text": "#1f1c1a",
           "text_muted": "#605850",
-          "accent": "#7A4E35",
-          "line": "#D9D0C3",
-          "button": "#1F1C1A",
-          "button_label": "#F7F4EF"
+          "accent": "#7a4e35",
+          "line": "#d9d0c3",
+          "button": "#1f1c1a",
+          "button_label": "#f7f4ef"
         }
       },
       "scheme-3": {
         "settings": {
-          "background": "#1F1C1A",
+          "background": "#1f1c1a",
           "background_gradient": "",
-          "text": "#F7F4EF",
-          "text_muted": "#BDB4AA",
-          "accent": "#D9B49A",
-          "line": "#3A3532",
-          "button": "#F7F4EF",
-          "button_label": "#1F1C1A"
+          "text": "#f7f4ef",
+          "text_muted": "#bdb4aa",
+          "accent": "#d9b49a",
+          "line": "#3a3532",
+          "button": "#f7f4ef",
+          "button_label": "#1f1c1a"
         }
       }
     }

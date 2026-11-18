@@ -1,0 +1,45 @@
+{% doc %}
+  Star rating from Shopify's standard review metafields (written by review apps such as
+  Judge.me): product.metafields.reviews.rating (type rating) and .rating_count.
+  Renders nothing until a product has reviews, so no fake or empty stars.
+
+  @param {product} product - The product
+{% enddoc %}
+{% liquid
+  assign rating = product.metafields.reviews.rating.value
+  assign count = product.metafields.reviews.rating_count.value | default: 0
+%}
+{% if rating and count > 0 %}
+  {% liquid
+    assign scale = rating.scale_max | default: 5
+    assign percent = rating.rating | times: 100.0 | divided_by: scale
+    assign rounded = rating.rating | round: 1
+  %}
+  <p class="rating">
+    <span class="rating__stars" style="--rating: {{ percent }}%;" aria-hidden="true"></span>
+    <span class="visually-hidden">{{ 'products.rating' | t: rating: rounded, max: scale }}</span>
+    <span class="rating__count text-muted">({{ count }})<span class="visually-hidden"> {{ 'products.reviews' | t: count: count }}</span></span>
+  </p>
+{% endif %}
+
+{% stylesheet %}
+  .rating {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+  }
+  /* Five stars as text; the filled part is a gradient clipped to the rating percentage */
+  .rating__stars {
+    --star-fill: var(--color-foreground);
+    letter-spacing: 0.1em;
+    background: linear-gradient(90deg, var(--star-fill) var(--rating), var(--color-line) var(--rating));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: var(--text-sm);
+  }
+  .rating__stars::before {
+    content: '★★★★★';
+  }
+{% endstylesheet %}

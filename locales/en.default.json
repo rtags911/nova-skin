@@ -22,6 +22,11 @@
   },
   "products": {
     "view_details": "View full details",
+    "rating": "Rated {{ rating }} out of {{ max }} stars",
+    "reviews": {
+      "one": "review",
+      "other": "reviews"
+    },
     "add_to_cart": "Add to cart",
     "added": "Added to your cart.",
     "benefits": "Key benefits",

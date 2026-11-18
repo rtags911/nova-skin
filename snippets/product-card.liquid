@@ -51,6 +51,7 @@
     <h3 class="product-card__title">
       <a href="{{ product.url }}">{{ product.title | escape }}</a>
     </h3>
+    {% render 'rating-stars', product: product %}
     {% render 'price', product: product %}
     {% unless product.available %}
       <p class="product-card__badge label text-muted">{{ 'products.sold_out' | t }}</p>

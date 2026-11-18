@@ -56,6 +56,7 @@
       <p class="label text-muted">{{ product.type | escape }}</p>
     {% endif %}
     <h1 class="product__title h2">{{ product.title | escape }}</h1>
+    {% render 'rating-stars', product: product %}
 
     {% render 'product-form', product: product, section_id: section.id %}
 
@@ -191,6 +192,23 @@
   }
   .product__details details > :not(summary) {
     padding-bottom: var(--space-5);
+  }
+  /* Judge.me review widget (app block) matched to the theme's buttons and type */
+  .product__info .jdgm-widget {
+    margin-top: var(--space-6);
+    font-family: var(--font-body--family);
+  }
+  .product__info .jdgm-widget .jm-button--primary {
+    min-height: var(--control-height);
+    padding: 0 var(--space-6);
+    border: 1px solid var(--color-button);
+    border-radius: var(--radius);
+    background: var(--color-button);
+    color: var(--color-button-label);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
   }
   .product__benefits {
     display: grid;
