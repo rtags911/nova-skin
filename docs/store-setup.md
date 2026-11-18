@@ -3,7 +3,16 @@
 **Status (2026-11-19):** sections 1–3 done via the Shopify GraphiQL app (Admin API 2026-10):
 `collectionCreate` ×10 with tag `ruleSet` → `publishablePublish` to Online Store → `menuUpdate` on `main-menu`
 → `inventorySetQuantities` (40 each at *Shop location*; needs `@idempotent(key:)` and `changeFromQuantity`).
-About / FAQ menu items are added once those pages exist. Section 4 (store name, currency) is still open.
+About / FAQ menu items are added once those pages exist.
+
+**Filters (Phase 3.5):** product field `custom.concern` (*Skin concern*, `list.single_line_text_field`,
+choices Hydration / Brightening / Anti-ageing / Sensitive skin) created with `metafieldDefinitionCreate`
+and filled from the CSV's `concern-*` tags with `metafieldsSet`. Shopify **Search & Discovery** app →
+Filters → add *Skin concern* (product metafield) and *Product type*. The theme renders whatever filters
+the app enables; no code change.
+
+**Cleanup:** the 17 generated sample products (snowboards, ski wax, gift card) were archived with
+`productUpdate(product: {id, status: ARCHIVED})`. Reversible: Products → Archived → Unarchive. Section 4 (store name, currency) is still open.
 
 Theme code reads these by handle, so the handles must match exactly.
 
