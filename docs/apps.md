@@ -7,7 +7,7 @@ Every app adds scripts, data access and a dependency, so fewer is better.
 |---|---|---|---|
 | Filters, related products | **Shopify Search & Discovery** (free, by Shopify) | ✅ Installed (Phase 3.5) | Required for storefront filters on product fields (Skin concern). Also tunes recommendations. |
 | Product reviews | **Judge.me** (free plan) | Phase 5 | Shopify's own Product Reviews app was retired. Judge.me's free plan has an app block for the product page and writes the standard `reviews.rating` metafields, so the theme can show stars without the app's scripts. |
-| Email marketing | **Shopify Email** (built in, free tier) | Phase 5 | Newsletter sign-ups are Shopify customers tagged `newsletter` with marketing consent; Shopify Email sends to them directly. No extra app or data sync. |
+| Email marketing | **Shopify Messaging** (formerly Shopify Email; by Shopify, free to install, free monthly email allowance) | Phase 5 | Newsletter sign-ups are Shopify customers tagged `newsletter` with email marketing consent (verified: sign-up on the store preview → Customers shows *Subscribed* + `newsletter`). Shopify Messaging sends to them directly; no extra app or data sync. |
 | Customer chat | Shopify Inbox | Optional, not installed | Useful for a live store. Adds a chat widget script on every page; not needed for a demo. |
 | Analytics | Shopify Analytics (built in) | ✅ Built in | Sessions, conversion, top products out of the box. |
 | Analytics (Google) | Google & YouTube channel (GA4) | Optional, not installed | Needs a real Google account and property; add for a live store. |
