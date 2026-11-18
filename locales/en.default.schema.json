@@ -33,7 +33,16 @@
     "theme": "Theme",
     "typography": "Typography"
   },
+  "sections": {
+    "announcement": {
+      "name": "Announcement bar"
+    }
+  },
   "labels": {
+    "color_scheme": "Colour scheme",
+    "link": "Link",
+    "logo": "Logo image",
+    "logo_width": "Logo width",
     "accent": "Accent (links, sale price, focus)",
     "alignment": "Alignment",
     "background": "Background",

@@ -2,6 +2,21 @@
   "accessibility": {
     "skip_to_content": "Skip to content"
   },
+  "header": {
+    "menu": "Menu",
+    "search": "Search",
+    "search_placeholder": "Search products",
+    "account": "Account",
+    "cart_count": {
+      "one": "Cart, {{ count }} item",
+      "other": "Cart, {{ count }} items"
+    }
+  },
+  "sections": {
+    "announcement": {
+      "label": "Announcement"
+    }
+  },
   "404": {
     "title": "404",
     "not_found": "Page not found.",

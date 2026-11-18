@@ -1,66 +1,432 @@
-<header>
-  <h2 class="header__title">
-    {{ shop.name | link_to: routes.root_url }}
-  </h2>
+{% # Desktop nav and the mobile drawer both read the same menu (up to 3 levels). %}
+<header-menu class="header full-width color-{{ section.settings.color_scheme }}">
+  <div class="header__inner">
+    {% # Mobile: hamburger opens a drawer built from <details> (works without JS) %}
+    <details class="header__drawer" scroll-lock>
+      <summary class="header__icon" aria-label="{{ 'header.menu' | t }}">
+        <span class="header__icon-open">{{ 'icon-menu.svg' | inline_asset_content }}</span>
+        <span class="header__icon-close">{{ 'icon-close.svg' | inline_asset_content }}</span>
+      </summary>
+      <nav class="drawer color-{{ section.settings.color_scheme }}" aria-label="{{ 'header.menu' | t }}">
+        <ul class="drawer__list" role="list">
+          {% for link in section.settings.menu.links %}
+            <li>
+              {% if link.links != blank %}
+                <details class="drawer__group">
+                  <summary class="drawer__link">
+                    {{ link.title }}
+                    {{ 'icon-chevron.svg' | inline_asset_content }}
+                  </summary>
+                  <ul class="drawer__sublist" role="list">
+                    {% for child in link.links %}
+                      <li>
+                        {% if child.links != blank %}
+                          <p class="drawer__heading label text-muted">{{ child.title }}</p>
+                          <ul role="list">
+                            {% for grandchild in child.links %}
+                              <li>
+                                <a class="drawer__sublink" href="{{ grandchild.url }}"{% if grandchild.current %} aria-current="page"{% endif %}>{{ grandchild.title }}</a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% else %}
+                          <a class="drawer__sublink" href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{{ child.title }}</a>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </details>
+              {% else %}
+                <a class="drawer__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </details>
 
-  <div class="header__menu">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+    {% # Logo: image if set, otherwise the shop name as text %}
+    <a class="header__logo" href="{{ routes.root_url }}">
+      {% if section.settings.logo != blank %}
+        {{
+          section.settings.logo
+          | image_url: width: 400
+          | image_tag:
+            alt: shop.name,
+            width: section.settings.logo_width,
+            loading: 'eager',
+            sizes: '160px',
+            widths: '160, 240, 320, 400'
+        }}
+      {% else %}
+        <span class="header__wordmark">{{ shop.name }}</span>
+      {% endif %}
+    </a>
 
-  <div class="header__icons">
-    {% if shop.customer_accounts_enabled %}
-      {{ 'icon-account.svg' | inline_asset_content | link_to: routes.account_url }}
-    {% endif %}
+    {% # Desktop navigation %}
+    <nav class="header__nav" aria-label="{{ 'header.menu' | t }}">
+      <ul class="header__nav-list" role="list">
+        {% for link in section.settings.menu.links %}
+          <li>
+            {% if link.links != blank %}
+              <details class="header__dropdown">
+                <summary class="header__nav-link">
+                  {{ link.title }}
+                  {{ 'icon-chevron.svg' | inline_asset_content }}
+                </summary>
+                <div class="dropdown color-{{ section.settings.color_scheme }}">
+                  <ul class="dropdown__columns" role="list">
+                    {% for child in link.links %}
+                      <li>
+                        {% if child.links != blank %}
+                          <p class="dropdown__heading label text-muted">{{ child.title }}</p>
+                          <ul role="list">
+                            {% for grandchild in child.links %}
+                              <li>
+                                <a class="dropdown__link" href="{{ grandchild.url }}"{% if grandchild.current %} aria-current="page"{% endif %}>{{ grandchild.title }}</a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% else %}
+                          <a class="dropdown__link" href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{{ child.title }}</a>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </details>
+            {% else %}
+              <a class="header__nav-link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
 
-    <a href="{{ routes.cart_url }}">
-      {% if cart.item_count > 0 %}
-        <sup>{{ cart.item_count }}</sup>
+    <div class="header__icons">
+      {% # Search: a plain GET form to /search, revealed in a <details> panel %}
+      <details class="header__search">
+        <summary class="header__icon" aria-label="{{ 'header.search' | t }}">
+          {{ 'icon-search.svg' | inline_asset_content }}
+        </summary>
+        <form class="search-panel color-{{ section.settings.color_scheme }}" action="{{ routes.search_url }}" method="get" role="search">
+          <label class="visually-hidden" for="HeaderSearch">{{ 'header.search' | t }}</label>
+          <input id="HeaderSearch" type="search" name="q" placeholder="{{ 'header.search_placeholder' | t }}" autocomplete="off">
+          <input type="hidden" name="type" value="product">
+          <button class="button" type="submit">{{ 'header.search' | t }}</button>
+        </form>
+      </details>
+
+      {% if shop.customer_accounts_enabled %}
+        <a class="header__icon" href="{{ routes.account_url }}" aria-label="{{ 'header.account' | t }}">
+          {{ 'icon-account.svg' | inline_asset_content }}
+        </a>
       {% endif %}
 
-      {{ 'icon-cart.svg' | inline_asset_content }}
-    </a>
+      <a class="header__icon header__cart" href="{{ routes.cart_url }}" id="HeaderCart">
+        {{ 'icon-cart.svg' | inline_asset_content }}
+        <span class="visually-hidden">{{ 'header.cart_count' | t: count: cart.item_count }}</span>
+        {% if cart.item_count > 0 %}
+          <span class="header__cart-count" aria-hidden="true">{{ cart.item_count }}</span>
+        {% endif %}
+      </a>
+    </div>
   </div>
-</header>
+</header-menu>
 
 {% stylesheet %}
-  header {
-    height: 5rem;
+  .section-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .header {
+    --icon-stroke-width: 1.3;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .header__inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    max-width: var(--page-width);
+    min-height: 4rem;
+    margin-inline: auto;
+    padding-inline: var(--page-margin);
+  }
+  .header summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .header summary::-webkit-details-marker {
+    display: none;
+  }
+  .header svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .header__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: inherit;
+  }
+  .header__icon-close,
+  .header__drawer[open] .header__icon-open {
+    display: none;
+  }
+  .header__drawer[open] .header__icon-close {
+    display: inline-flex;
+  }
+  .header__logo {
+    justify-self: start;
+    min-width: 0;
+    text-decoration: none;
+  }
+  .header__logo img {
+    height: auto;
+  }
+  .header__wordmark {
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    font-size: var(--text-lg);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .header__icons {
+    display: flex;
+    justify-self: end;
+  }
+  .header__cart {
+    position: relative;
+  }
+  .header__cart-count {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.2rem;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    padding-inline: 0.25rem;
+    border-radius: 999px;
+    background: var(--color-button);
+    color: var(--color-button-label);
+    font-size: 0.6875rem;
+    line-height: 1.1rem;
+    text-align: center;
+  }
+
+  /* Panels shared by drawer, dropdown and search */
+  .drawer,
+  .dropdown,
+  .search-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    border-bottom: 1px solid var(--color-line);
+    animation: header-panel-in var(--duration-base) var(--ease-out);
+  }
+  @keyframes header-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+
+  /* Mobile drawer */
+  .drawer {
+    height: calc(100svh - 4rem);
+    overflow-y: auto;
+    padding: var(--space-4) var(--page-margin) var(--space-8);
+  }
+  .drawer ul {
+    padding: 0;
+    list-style: none;
+  }
+  .drawer__link {
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-  header a {
-    position: relative;
+    min-height: 3.25rem;
+    border-bottom: 1px solid var(--color-line);
+    font-family: var(--font-heading--family);
+    font-size: var(--text-xl);
     text-decoration: none;
-    color: var(--color-foreground);
   }
-  header a sup {
-    position: absolute;
-    left: 100%;
-    overflow: hidden;
-    max-width: var(--page-margin);
+  .drawer__group[open] > summary svg {
+    transform: rotate(180deg);
   }
-  header svg {
-    width: 2rem;
+  .drawer__sublist {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-4) 0 var(--space-5);
   }
-  header .header__menu,
-  header .header__icons {
+  .drawer__heading,
+  .dropdown__heading {
+    margin-bottom: var(--space-2);
+  }
+  .drawer__sublink,
+  .dropdown__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    text-decoration: none;
+  }
+  .drawer__sublink:hover,
+  .dropdown__link:hover,
+  [aria-current='page'] {
+    text-decoration: underline;
+  }
+
+  /* Desktop nav */
+  .header__nav {
+    display: none;
+  }
+  .header__nav-list {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-6);
+    padding: 0;
+    list-style: none;
+  }
+  .header__nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 2.75rem;
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .header__nav-link svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+  .header__dropdown[open] .header__nav-link svg {
+    transform: rotate(180deg);
+  }
+  .dropdown {
+    padding: var(--space-8) var(--page-margin);
+  }
+  .dropdown__columns {
+    display: flex;
+    gap: var(--space-12);
+    max-width: var(--page-width);
+    margin-inline: auto;
+    padding: 0;
+    list-style: none;
+  }
+  .dropdown__columns ul {
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Search panel */
+  .search-panel {
+    display: flex;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--page-margin);
+  }
+  .search-panel input[type='search'] {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (min-width: 990px) {
+    .header__inner {
+      gap: var(--space-8);
+    }
+    .header__wordmark {
+      font-size: var(--text-xl);
+      letter-spacing: 0.18em;
+    }
+    .header__drawer {
+      display: none;
+    }
+    .header__nav {
+      display: block;
+      justify-self: center;
+    }
+    .search-panel {
+      padding-inline: max(var(--page-margin), calc((100% - var(--page-width)) / 2));
+    }
   }
 {% endstylesheet %}
+
+{% javascript %}
+  // Progressive enhancement for the <details> menus: one open at a time,
+  // close on Escape or an outside click. Scroll lock is CSS ([scroll-lock] in critical.css).
+  class HeaderMenu extends HTMLElement {
+    connectedCallback() {
+      this.panels = [...this.querySelectorAll(':scope details:not(.drawer__group)')];
+      this.panels.forEach((panel) => panel.addEventListener('toggle', () => this.onToggle(panel)));
+      this.onKeyup = (event) => event.key === 'Escape' && this.closeAll(true);
+      this.onClick = (event) => !this.contains(event.target) && this.closeAll();
+      document.addEventListener('keyup', this.onKeyup);
+      document.addEventListener('click', this.onClick);
+    }
+
+    disconnectedCallback() {
+      document.removeEventListener('keyup', this.onKeyup);
+      document.removeEventListener('click', this.onClick);
+    }
+
+    onToggle(panel) {
+      if (panel.open) {
+        this.panels.forEach((other) => other !== panel && (other.open = false));
+        panel.querySelector('input[type="search"]')?.focus();
+      }
+    }
+
+    closeAll(returnFocus = false) {
+      const open = this.panels.find((panel) => panel.open);
+      if (!open) return;
+      open.open = false;
+      if (returnFocus) open.querySelector('summary').focus();
+    }
+  }
+
+  customElements.define('header-menu', HeaderMenu);
+{% endjavascript %}
 
 {% schema %}
 {
   "name": "t:general.header",
+  "class": "section-header",
   "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:labels.logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 60,
+      "max": 240,
+      "step": 10,
+      "unit": "px",
+      "label": "t:labels.logo_width",
+      "default": 120
+    },
     {
       "type": "link_list",
       "id": "menu",
-      "label": "t:labels.menu"
+      "label": "t:labels.menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:labels.color_scheme",
+      "default": "scheme-1"
     }
-  ]
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
 }
 {% endschema %}
