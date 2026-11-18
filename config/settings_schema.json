@@ -93,5 +93,15 @@
         "default": 2
       }
     ]
+  },
+  {
+    "name": "t:general.social",
+    "settings": [
+      { "type": "url", "id": "social_instagram_link", "label": "t:labels.social_instagram" },
+      { "type": "url", "id": "social_tiktok_link", "label": "t:labels.social_tiktok" },
+      { "type": "url", "id": "social_facebook_link", "label": "t:labels.social_facebook" },
+      { "type": "url", "id": "social_pinterest_link", "label": "t:labels.social_pinterest" },
+      { "type": "url", "id": "social_youtube_link", "label": "t:labels.social_youtube" }
+    ]
   }
 ]

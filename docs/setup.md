@@ -89,3 +89,4 @@ Later (Phase 3+): Shopify admin → **Online Store → Themes → Add theme → 
 | `theme dev` 401 / wrong store | `shopify auth logout`, then rerun with `--store`. |
 | Preview shows the old theme | It previews the *development* theme. Use the printed link, not the store's public URL. |
 | "Theme directory structure invalid" | Run from the folder that contains `layout/`, `templates/` and so on. |
+| Newsletter / contact form shows "Verifying your connection…" or 403 on `127.0.0.1:9292` | Shopify's bot protection challenges form POSTs relayed by `theme dev`; the challenge can't complete through the local proxy. Test forms on the store preview link (`https://<store>.myshopify.com/?preview_theme_id=<id>`, printed by `theme dev`). Not a theme bug. |

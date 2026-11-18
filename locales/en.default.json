@@ -12,6 +12,14 @@
       "other": "Cart, {{ count }} items"
     }
   },
+  "newsletter": {
+    "email": "Email address",
+    "submit": "Subscribe",
+    "success": "Thanks for subscribing. Look out for our next email."
+  },
+  "footer": {
+    "payment_methods": "Payment methods accepted"
+  },
   "sections": {
     "announcement": {
       "label": "Announcement"

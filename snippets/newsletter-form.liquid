@@ -1,0 +1,59 @@
+{% doc %}
+  Newsletter sign-up using Shopify's customer form: creates or updates a
+  customer with accepts-marketing on and the "newsletter" tag. No app needed.
+
+  @param {string} id - Unique form id (used for the success anchor and labels)
+  @param {string} [button_style] - Extra class for the button, e.g. 'button--secondary'
+{% enddoc %}
+{% form 'customer', id: id, class: 'newsletter-form' %}
+  <input type="hidden" name="contact[tags]" value="newsletter">
+
+  {% if form.posted_successfully? %}
+    <p class="newsletter-form__message" role="status" tabindex="-1" autofocus>
+      {{ 'newsletter.success' | t }}
+    </p>
+  {% else %}
+    <div class="newsletter-form__row">
+      <label class="visually-hidden" for="{{ id }}-email">{{ 'newsletter.email' | t }}</label>
+      <input
+        id="{{ id }}-email"
+        type="email"
+        name="contact[email]"
+        value="{{ form.email }}"
+        placeholder="{{ 'newsletter.email' | t }}"
+        autocomplete="email"
+        autocorrect="off"
+        autocapitalize="off"
+        required
+        {% if form.errors %}
+          aria-invalid="true" aria-describedby="{{ id }}-error"
+        {% endif %}
+      >
+      <button class="button {{ button_style }}" type="submit">{{ 'newsletter.submit' | t }}</button>
+    </div>
+    {% if form.errors %}
+      <p class="newsletter-form__message" id="{{ id }}-error" role="alert">
+        {{ form.errors.translated_fields.email | capitalize }}
+        {{ form.errors.messages.email }}
+      </p>
+    {% endif %}
+  {% endif %}
+{% endform %}
+
+{% stylesheet %}
+  .newsletter-form__row {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .newsletter-form__row input {
+    flex: 1;
+    min-width: 0;
+  }
+  .newsletter-form__message {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+  }
+  .newsletter-form__message[role='alert'] {
+    color: var(--color-accent);
+  }
+{% endstylesheet %}

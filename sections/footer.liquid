@@ -1,57 +1,233 @@
-<footer>
-  <div class="footer__copyright">
-    &copy;
-    {{ 'now' | date: '%Y' }}
-    {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
-  </div>
+<footer class="footer full-width color-{{ section.settings.color_scheme }}">
+  <div class="footer__inner">
+    <div class="footer__top">
+      {% # Brand + newsletter %}
+      <div class="footer__brand">
+        <p class="footer__wordmark">{{ shop.name }}</p>
+        {% if section.settings.text != blank %}
+          <div class="footer__text text-muted">{{ section.settings.text }}</div>
+        {% endif %}
+        {% if section.settings.show_newsletter %}
+          <h2 class="footer__heading label">{{ section.settings.newsletter_heading }}</h2>
+          {% render 'newsletter-form', id: 'FooterNewsletter' %}
+        {% endif %}
+      </div>
 
-  <div class="footer__links">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
-
-  <div class="footer__payment">
-    {% if section.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
+      {% # Link columns: one block per menu, so the merchant controls headings and links %}
+      {% for block in section.blocks %}
+        <nav class="footer__column" aria-label="{{ block.settings.heading | escape }}" {{ block.shopify_attributes }}>
+          <h2 class="footer__heading label">{{ block.settings.heading }}</h2>
+          <ul role="list">
+            {% for link in block.settings.menu.links %}
+              <li><a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </nav>
       {% endfor %}
+    </div>
+
+    {% liquid
+      assign socials = 'instagram,tiktok,facebook,pinterest,youtube' | split: ','
+      assign has_social = false
+      for platform in socials
+        assign key = 'social_' | append: platform | append: '_link'
+        if settings[key] != blank
+          assign has_social = true
+        endif
+      endfor
+    %}
+    {% if has_social %}
+      <ul class="footer__social" role="list">
+        {% for platform in socials %}
+          {% assign key = 'social_' | append: platform | append: '_link' %}
+          {% if settings[key] != blank %}
+            <li><a href="{{ settings[key] }}" rel="noopener" target="_blank">{{ platform | capitalize }}</a></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
     {% endif %}
+
+    <div class="footer__bottom text-muted">
+      <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | link_to: routes.root_url }}</p>
+
+      {% if shop.policies.size > 0 %}
+        <ul class="footer__policies" role="list">
+          {% for policy in shop.policies %}
+            <li><a href="{{ policy.url }}">{{ policy.title }}</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 %}
+        <ul class="footer__payment" role="list">
+          <li class="visually-hidden">{{ 'footer.payment_methods' | t }}</li>
+          {% for type in shop.enabled_payment_types %}
+            <li>{{ type | payment_type_svg_tag }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
   </div>
 </footer>
 
 {% stylesheet %}
-  footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
+  .footer {
+    margin-top: var(--space-11);
+    padding: var(--space-10) 0 var(--space-6);
   }
-  footer a {
+  .footer__inner {
+    max-width: var(--page-width);
+    margin-inline: auto;
+    padding-inline: var(--page-margin);
+  }
+  .footer ul {
+    padding: 0;
+    list-style: none;
+  }
+  .footer a {
     text-decoration: none;
-    color: var(--color-foreground);
   }
-  footer .footer__links,
-  footer .footer__payment {
+  .footer a:hover {
+    text-decoration: underline;
+  }
+  .footer__top {
+    display: grid;
+    gap: var(--space-8) var(--space-6);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .footer__brand {
+    grid-column: 1 / -1;
+  }
+  .footer__wordmark {
+    font-family: var(--font-heading--family);
+    font-size: var(--text-xl);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .footer__text {
+    max-width: 32rem;
+    margin-top: var(--space-3);
+  }
+  .footer__brand .footer__heading {
+    margin-top: var(--space-7);
+  }
+  .footer__heading {
+    margin-bottom: var(--space-3);
+    font-family: var(--font-body--family);
+    font-weight: var(--font-body--weight-bold);
+  }
+  .footer__column a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+  .footer__social {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin-top: var(--space-8);
+  }
+  .footer__social a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-6);
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-xs);
+  }
+  .footer__policies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+  .footer__payment {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-left: auto;
+  }
+  .footer__payment svg {
+    width: 2.375rem;
+    height: auto;
+  }
+
+  @media (min-width: 750px) {
+    .footer__top {
+      grid-template-columns: 2fr repeat(3, minmax(0, 1fr));
+    }
+    .footer__brand {
+      grid-column: auto;
+      padding-right: var(--space-8);
+    }
   }
 {% endstylesheet %}
 
 {% schema %}
 {
   "name": "t:general.footer",
+  "class": "section-footer",
   "settings": [
     {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
+      "type": "richtext",
+      "id": "text",
+      "label": "t:labels.text",
+      "default": "<p>Considered skincare with clean, effective formulas. Made in small batches.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_newsletter",
+      "label": "t:labels.show_newsletter",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "newsletter_heading",
+      "label": "t:labels.newsletter_heading",
+      "default": "Join the list"
     },
     {
       "type": "checkbox",
       "id": "show_payment_icons",
       "label": "t:labels.show_payment_icons",
       "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:labels.color_scheme",
+      "default": "scheme-2"
     }
-  ]
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "t:labels.menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:labels.heading",
+          "default": "Help"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "t:labels.menu",
+          "default": "footer"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "enabled_on": {
+    "groups": ["footer"]
+  }
 }
 {% endschema %}
