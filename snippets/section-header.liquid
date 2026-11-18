@@ -1,0 +1,13 @@
+{% doc %}
+  Heading + intro text at the top of a section. Renders nothing if both are blank.
+
+  @param {string} [heading] - Section heading
+  @param {string} [text] - Richtext intro
+  @param {boolean} [center] - Centre-align
+{% enddoc %}
+{% if heading != blank or text != blank %}
+  <div class="section__header{% if center %} section__header--center{% endif %}">
+    {% if heading != blank %}<h2 class="h3">{{ heading | escape }}</h2>{% endif %}
+    {% if text != blank %}<div class="text-muted">{{ text }}</div>{% endif %}
+  </div>
+{% endif %}

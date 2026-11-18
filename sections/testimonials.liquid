@@ -1,0 +1,57 @@
+<div class="section testimonials full-width color-{{ section.settings.color_scheme }}">
+  <div class="section__inner">
+    {% render 'section-header', heading: section.settings.heading, text: section.settings.text %}
+    {% # Horizontal scroll-snap row on mobile, grid on desktop; no carousel JS needed %}
+    <ul class="testimonials__list" role="list">
+      {% content_for 'blocks' %}
+    </ul>
+  </div>
+</div>
+
+{% stylesheet %}
+  .testimonials__list {
+    display: grid;
+    grid-auto-columns: 85%;
+    grid-auto-flow: column;
+    gap: var(--space-4);
+    margin: 0 calc(var(--page-margin) * -1);
+    padding: 0 var(--page-margin) var(--space-2);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--page-margin);
+    list-style: none;
+  }
+  .testimonials__list > * {
+    scroll-snap-align: start;
+  }
+  @media (min-width: 750px) {
+    .testimonials__list {
+      grid-auto-columns: auto;
+      grid-auto-flow: row;
+      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.testimonials.name",
+  "class": "section-testimonials",
+  "blocks": [{ "type": "testimonial" }],
+  "max_blocks": 6,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:labels.heading", "default": "What customers say" },
+    { "type": "richtext", "id": "text", "label": "t:labels.text" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:labels.color_scheme", "default": "scheme-1" }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.testimonials.name",
+      "blocks": [{ "type": "testimonial" }, { "type": "testimonial" }, { "type": "testimonial" }]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,74 @@
+{% doc %}
+  One customer quote. "Sample" is on by default and shows a visible label, so placeholder
+  quotes can never pass as real reviews. Turn it off only for a genuine, permitted quote.
+{% enddoc %}
+<li class="testimonial" {{ block.shopify_attributes }}>
+  <figure>
+    {% if block.settings.is_sample %}
+      <p class="testimonial__sample label">{{ 'sections.testimonials.sample' | t }}</p>
+    {% endif %}
+    <blockquote class="testimonial__quote">{{ block.settings.quote }}</blockquote>
+    <figcaption class="testimonial__author">
+      <span>{{ block.settings.author | escape }}</span>
+      {% if block.settings.detail != blank %}
+        <span class="text-muted">{{ block.settings.detail | escape }}</span>
+      {% endif %}
+    </figcaption>
+  </figure>
+</li>
+
+{% stylesheet %}
+  .testimonial figure {
+    display: grid;
+    gap: var(--space-4);
+    height: 100%;
+    margin: 0;
+    padding: var(--space-6);
+    border: 1px solid var(--color-line);
+  }
+  .testimonial__sample {
+    justify-self: start;
+    padding: var(--space-1) var(--space-2);
+    border: 1px dashed var(--color-foreground-muted);
+    color: var(--color-foreground-muted);
+  }
+  .testimonial__quote {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: var(--text-xl);
+    line-height: 1.35;
+  }
+  .testimonial__quote p {
+    margin: 0;
+  }
+  .testimonial__author {
+    display: grid;
+    gap: var(--space-1);
+    align-self: end;
+    font-size: var(--text-sm);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.testimonial.name",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "is_sample",
+      "label": "t:labels.is_sample",
+      "info": "t:info.is_sample",
+      "default": true
+    },
+    {
+      "type": "richtext",
+      "id": "quote",
+      "label": "t:labels.quote",
+      "default": "<p>Sample testimonial. Replace with a real customer quote you have permission to use.</p>"
+    },
+    { "type": "text", "id": "author", "label": "t:labels.author", "default": "Sample customer" },
+    { "type": "text", "id": "detail", "label": "t:labels.author_detail", "default": "Product name" }
+  ],
+  "presets": [{ "name": "t:blocks.testimonial.name" }]
+}
+{% endschema %}

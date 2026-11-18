@@ -24,7 +24,102 @@
         "show_view_all": true,
         "color_scheme": "scheme-1"
       }
+    },
+    "concerns": {
+      "type": "featured-collections",
+      "blocks": {
+        "hydration": { "type": "collection-card", "settings": { "collection": "concern-hydration" } },
+        "brightening": { "type": "collection-card", "settings": { "collection": "concern-brightening" } },
+        "anti_ageing": { "type": "collection-card", "settings": { "collection": "concern-anti-ageing" } },
+        "sensitive": { "type": "collection-card", "settings": { "collection": "concern-sensitive" } }
+      },
+      "block_order": ["hydration", "brightening", "anti_ageing", "sensitive"],
+      "settings": {
+        "heading": "Shop by concern",
+        "text": "<p>Start with what your skin needs.</p>",
+        "color_scheme": "scheme-1"
+      }
+    },
+    "benefits": {
+      "type": "benefits",
+      "blocks": {
+        "clean": { "type": "benefit", "settings": { "icon": "leaf", "title": "Clean formulas", "text": "No parabens, sulfates or added fragrance." } },
+        "tested": { "type": "benefit", "settings": { "icon": "shield", "title": "Patch-tested", "text": "Every formula is tested on sensitive skin." } },
+        "cruelty_free": { "type": "benefit", "settings": { "icon": "heart", "title": "Cruelty-free", "text": "Never tested on animals." } },
+        "glass": { "type": "benefit", "settings": { "icon": "recycle", "title": "Recyclable glass", "text": "Bottles and jars you can recycle." } }
+      },
+      "block_order": ["clean", "tested", "cruelty_free", "glass"],
+      "settings": {
+        "heading": "Made to be gentle",
+        "color_scheme": "scheme-2"
+      }
+    },
+    "story": {
+      "type": "image-with-text",
+      "settings": {
+        "image_position": "left",
+        "eyebrow": "Our story",
+        "heading": "Fewer, better ingredients",
+        "text": "<p>Nova Skin started with a simple idea: a short routine of formulas that do one thing well. We test every batch and list every ingredient.</p>",
+        "button_label": "Read our story",
+        "button_link": "",
+        "color_scheme": "scheme-1"
+      }
+    },
+    "spotlight": {
+      "type": "featured-product",
+      "settings": {
+        "product": "lumen-vitamin-c-serum",
+        "eyebrow": "Bestseller",
+        "color_scheme": "scheme-2"
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "one": { "type": "testimonial" },
+        "two": { "type": "testimonial" },
+        "three": { "type": "testimonial" }
+      },
+      "block_order": ["one", "two", "three"],
+      "settings": {
+        "heading": "What customers say",
+        "color_scheme": "scheme-1"
+      }
+    },
+    "promo": {
+      "type": "promo-banner",
+      "settings": {
+        "eyebrow": "Starter set",
+        "heading": "The Daily Ritual Set",
+        "text": "<p>Cleanser, serum and moisturiser in travel sizes. A full routine to start with.</p>",
+        "button_label": "Shop the set",
+        "button_link": "shopify://products/daily-ritual-set",
+        "color_scheme": "scheme-3"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "sensitive": { "type": "faq-item" },
+        "shipping": { "type": "faq-item", "settings": { "question": "When will my order arrive?", "answer": "<p>Orders ship within 2 working days. You'll get tracking by email.</p>" } },
+        "returns": { "type": "faq-item", "settings": { "question": "Can I return an opened product?", "answer": "<p>Yes, within 30 days if it didn't suit your skin.</p>" } }
+      },
+      "block_order": ["sensitive", "shipping", "returns"],
+      "settings": {
+        "heading": "Questions",
+        "link_label": "",
+        "color_scheme": "scheme-1"
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Join the list",
+        "text": "<p>New formulas and routines, about once a month. Unsubscribe any time.</p>",
+        "color_scheme": "scheme-2"
+      }
     }
   },
-  "order": ["hero", "bestsellers"]
+  "order": ["hero", "bestsellers", "concerns", "benefits", "story", "spotlight", "testimonials", "promo", "faq", "newsletter"]
 }

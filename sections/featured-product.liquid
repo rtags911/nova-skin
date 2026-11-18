@@ -1,0 +1,95 @@
+{% comment %}
+  One product spotlight on any page, with the same buy form as the product page
+  (snippets/product-form) and the same <product-info> behaviour, minus URL updates.
+{% endcomment %}
+{% assign product = section.settings.product %}
+<div class="section featured-product full-width color-{{ section.settings.color_scheme }}">
+  <product-info class="section__inner featured-product__inner" data-section="{{ section.id }}" data-url="{{ product.url }}">
+    <div class="featured-product__media">
+      {% if product.featured_media %}
+        {{
+          product.featured_media
+          | image_url: width: 1400
+          | image_tag:
+            widths: '450, 700, 1000, 1400',
+            sizes: '(min-width: 990px) 50vw, 100vw',
+            loading: 'lazy',
+            alt: product.featured_media.alt
+        }}
+      {% else %}
+        {{ 'product-2' | placeholder_svg_tag: 'featured-product__placeholder' }}
+      {% endif %}
+    </div>
+
+    <div class="featured-product__info">
+      {% if section.settings.eyebrow != blank %}<p class="label">{{ section.settings.eyebrow | escape }}</p>{% endif %}
+      {% if product != blank %}
+        <h2 class="h2"><a href="{{ product.url }}">{{ product.title | escape }}</a></h2>
+        {% if product.description != blank %}
+          <p class="featured-product__description text-muted">{{ product.description | strip_html | truncatewords: 30 }}</p>
+        {% endif %}
+        {% render 'product-form', product: product, section_id: section.id %}
+        <a class="featured-product__more" href="{{ product.url }}">{{ 'products.view_details' | t }}</a>
+      {% else %}
+        <h2 class="h2">{{ 'sections.featured_product.placeholder' | t }}</h2>
+      {% endif %}
+    </div>
+  </product-info>
+</div>
+
+{% stylesheet %}
+  .featured-product__inner {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+  .featured-product__media {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+  .featured-product__media img,
+  .featured-product__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .featured-product__placeholder {
+    fill: var(--color-foreground-muted);
+    opacity: 0.35;
+  }
+  .featured-product__info {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 32rem;
+  }
+  .featured-product__info h2 a {
+    text-decoration: none;
+  }
+  .featured-product__more {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--text-sm);
+  }
+  @media (min-width: 990px) {
+    .featured-product__inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-11);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.featured_product.name",
+  "class": "section-featured-product",
+  "settings": [
+    { "type": "product", "id": "product", "label": "t:labels.product" },
+    { "type": "text", "id": "eyebrow", "label": "t:labels.eyebrow", "default": "Bestseller" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:labels.color_scheme", "default": "scheme-2" }
+  ],
+  "presets": [{ "name": "t:sections.featured_product.name" }]
+}
+{% endschema %}

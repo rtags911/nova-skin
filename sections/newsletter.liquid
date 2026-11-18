@@ -1,0 +1,32 @@
+<div class="section newsletter full-width color-{{ section.settings.color_scheme }}">
+  <div class="section__inner newsletter__inner">
+    {% render 'section-header', heading: section.settings.heading, text: section.settings.text, center: true %}
+    {% assign form_id = 'Newsletter-' | append: section.id %}
+    {% render 'newsletter-form', id: form_id %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .newsletter__inner {
+    max-width: 36rem;
+  }
+  .newsletter .section__header {
+    margin-bottom: var(--space-6);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.newsletter.name",
+  "class": "section-newsletter",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:labels.heading", "default": "Join the list" },
+    {
+      "type": "richtext", "id": "text", "label": "t:labels.text",
+      "default": "<p>New formulas and routines, about once a month. Unsubscribe any time.</p>"
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:labels.color_scheme", "default": "scheme-2" }
+  ],
+  "presets": [{ "name": "t:sections.newsletter.name" }]
+}
+{% endschema %}

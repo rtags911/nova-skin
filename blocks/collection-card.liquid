@@ -1,0 +1,84 @@
+{% doc %}
+  One collection tile (used by the featured-collections section, e.g. "Shop by concern").
+  Image falls back to the collection's own image, then to placeholder art.
+{% enddoc %}
+{% liquid
+  assign collection = block.settings.collection
+  assign image = block.settings.image | default: collection.featured_image
+  assign title = block.settings.title | default: collection.title
+  if title == blank
+    assign title = 'sections.featured_collections.placeholder' | t
+  endif
+%}
+<li class="collection-tile" {{ block.shopify_attributes }}>
+  <a class="collection-tile__link" href="{{ collection.url | default: routes.collections_url }}">
+    <div class="collection-tile__media">
+      {% if image %}
+        {{
+          image
+          | image_url: width: 900
+          | image_tag:
+            widths: '300, 450, 600, 900',
+            sizes: '(min-width: 990px) 25vw, 50vw',
+            loading: 'lazy',
+            alt: ''
+        }}
+      {% else %}
+        {{ 'collection-1' | placeholder_svg_tag: 'collection-tile__placeholder' }}
+      {% endif %}
+    </div>
+    <span class="collection-tile__title">{{ title | escape }}</span>
+    {% if collection.products_count > 0 %}
+      <span class="collection-tile__count text-muted">{{ 'collections.product_count' | t: count: collection.products_count }}</span>
+    {% endif %}
+  </a>
+</li>
+
+{% stylesheet %}
+  .collection-tile__link {
+    display: grid;
+    gap: var(--space-1);
+    text-decoration: none;
+  }
+  .collection-tile__media {
+    aspect-ratio: 1;
+    margin-bottom: var(--space-2);
+    overflow: hidden;
+    background: var(--color-line);
+  }
+  .collection-tile__media img,
+  .collection-tile__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+  .collection-tile__placeholder {
+    fill: var(--color-foreground-muted);
+    opacity: 0.35;
+  }
+  @media (hover: hover) {
+    .collection-tile__link:hover img {
+      transform: scale(1.03);
+    }
+  }
+  .collection-tile__title {
+    font-family: var(--font-heading--family);
+    font-size: var(--text-xl);
+  }
+  .collection-tile__count {
+    font-size: var(--text-sm);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.collection_card.name",
+  "settings": [
+    { "type": "collection", "id": "collection", "label": "t:labels.collection" },
+    { "type": "text", "id": "title", "label": "t:labels.title", "info": "t:info.title_override" },
+    { "type": "image_picker", "id": "image", "label": "t:labels.image", "info": "t:info.collection_image" }
+  ],
+  "presets": [{ "name": "t:blocks.collection_card.name" }]
+}
+{% endschema %}

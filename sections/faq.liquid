@@ -1,0 +1,59 @@
+<div class="section faq full-width color-{{ section.settings.color_scheme }}">
+  <div class="section__inner faq__inner">
+    {% render 'section-header', heading: section.settings.heading, text: section.settings.text %}
+    <div class="faq__list">
+      {% content_for 'blocks' %}
+    </div>
+    {% if section.settings.link_label != blank and section.settings.link != blank %}
+      <a class="faq__more" href="{{ section.settings.link }}">{{ section.settings.link_label | escape }}</a>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .faq__list {
+    border-top: 1px solid var(--color-line);
+  }
+  .faq__more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-top: var(--space-5);
+  }
+  @media (min-width: 990px) {
+    .faq__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+      column-gap: var(--space-10);
+      align-items: start;
+    }
+    .faq__more {
+      grid-column: 2;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.faq.name",
+  "class": "section-faq",
+  "blocks": [{ "type": "faq-item" }],
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:labels.heading", "default": "Questions" },
+    { "type": "richtext", "id": "text", "label": "t:labels.text" },
+    { "type": "text", "id": "link_label", "label": "t:labels.link_label", "default": "All questions" },
+    { "type": "url", "id": "link", "label": "t:labels.link" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:labels.color_scheme", "default": "scheme-1" }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.faq.name",
+      "blocks": [
+        { "type": "faq-item" },
+        { "type": "faq-item", "settings": { "question": "When will my order arrive?", "answer": "<p>Orders ship within 2 working days. You'll get tracking by email.</p>" } },
+        { "type": "faq-item", "settings": { "question": "Can I return an opened product?", "answer": "<p>Yes, within 30 days if it didn't suit your skin.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

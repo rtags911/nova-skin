@@ -1,0 +1,58 @@
+{% doc %}
+  One product benefit / trust point: small icon, short heading, one line of text.
+{% enddoc %}
+<li class="benefit" {{ block.shopify_attributes }}>
+  <span class="benefit__icon" aria-hidden="true">{% render 'benefit-icon', icon: block.settings.icon %}</span>
+  <h3 class="benefit__title">{{ block.settings.title | escape }}</h3>
+  {% if block.settings.text != blank %}
+    <p class="benefit__text text-muted">{{ block.settings.text | escape }}</p>
+  {% endif %}
+</li>
+
+{% stylesheet %}
+  .benefit {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+  .benefit__icon svg {
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: var(--space-2);
+    color: var(--color-accent);
+  }
+  .benefit__title {
+    font-family: var(--font-body--family);
+    font-size: var(--text-base);
+    font-weight: var(--font-body--weight-bold);
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+  .benefit__text {
+    font-size: var(--text-sm);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.benefit.name",
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:labels.icon",
+      "default": "leaf",
+      "options": [
+        { "value": "leaf", "label": "t:options.icon.leaf" },
+        { "value": "drop", "label": "t:options.icon.drop" },
+        { "value": "shield", "label": "t:options.icon.shield" },
+        { "value": "recycle", "label": "t:options.icon.recycle" },
+        { "value": "heart", "label": "t:options.icon.heart" }
+      ]
+    },
+    { "type": "text", "id": "title", "label": "t:labels.title", "default": "Clean formulas" },
+    { "type": "text", "id": "text", "label": "t:labels.text", "default": "No parabens, sulfates or added fragrance." }
+  ],
+  "presets": [{ "name": "t:blocks.benefit.name" }]
+}
+{% endschema %}

@@ -5,11 +5,9 @@
   <product-info> upgrades it: option radios → variant, price/URL/media update, Ajax add.
 {% endcomment %}
 {% liquid
-  assign variant = product.selected_or_first_available_variant
-  assign single_variant = product.has_only_default_variant
   assign benefits = product.metafields.custom.key_benefits.value | split: ';'
 %}
-<product-info class="product full-width" data-section="{{ section.id }}" data-url="{{ product.url }}">
+<product-info class="product full-width" data-section="{{ section.id }}" data-url="{{ product.url }}" data-update-url>
   {% # Gallery: swipeable row on mobile, stacked grid on desktop %}
   <div class="product__gallery">
     {% if product.media.size > 0 %}
@@ -59,63 +57,7 @@
     {% endif %}
     <h1 class="product__title h2">{{ product.title | escape }}</h1>
 
-    <p class="product__price" data-price>
-      {% render 'variant-price', variant: variant %}
-    </p>
-
-    {% form 'product', product, class: 'product__form', id: 'ProductForm', novalidate: 'novalidate' %}
-      {% # The real variant field: visible without JS, driven by the option buttons with JS %}
-      <div class="product__variant-select"{% if single_variant %} hidden{% endif %}>
-        <label class="label" for="Variant-{{ section.id }}">{{ 'products.variant' | t }}</label>
-        <select name="id" id="Variant-{{ section.id }}" data-variant-id>
-          {% for v in product.variants %}
-            <option value="{{ v.id }}"{% if v == variant %} selected{% endif %}{% unless v.available %} disabled{% endunless %}>
-              {{ v.title | escape }} – {{ v.price | money }}{% unless v.available %} ({{ 'products.sold_out' | t }}){% endunless %}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      {% unless single_variant %}
-        {% for option in product.options_with_values %}
-          <fieldset class="product__option">
-            <legend class="label">{{ option.name | escape }}</legend>
-            <div class="product__option-values">
-              {% for value in option.values %}
-                <input
-                  type="radio"
-                  class="visually-hidden"
-                  id="Option-{{ section.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}"
-                  name="options[{{ option.name | escape }}]"
-                  value="{{ value | escape }}"
-                  {% if option.selected_value == value %}checked{% endif %}
-                >
-                <label class="product__swatch" for="Option-{{ section.id }}-{{ forloop.parentloop.index }}-{{ forloop.index }}">
-                  {{ value | escape }}
-                </label>
-              {% endfor %}
-            </div>
-          </fieldset>
-        {% endfor %}
-      {% endunless %}
-
-      <div class="product__buy">
-        {% render 'quantity-input', id: 'Quantity-ProductForm', name: 'quantity' %}
-        <button
-          type="submit"
-          name="add"
-          class="button product__add"
-          data-add
-          {% unless variant.available %}disabled{% endunless %}
-        >
-          {% if variant.available %}{{ 'products.add_to_cart' | t }}{% else %}{{ 'products.sold_out' | t }}{% endif %}
-        </button>
-      </div>
-
-      {{ form | payment_button }}
-
-      <p class="product__status" role="status" data-status></p>
-    {% endform %}
+    {% render 'product-form', product: product, section_id: section.id %}
 
     {% if product.description != blank %}
       <div class="product__description rte">{{ product.description }}</div>
@@ -154,21 +96,6 @@
     {% endfor %}
   </div>
 
-  {% # Variant data for the option picker (ids, options, price markup, media) %}
-  <script type="application/json" data-variants>
-    [
-      {%- for v in product.variants -%}
-        {%- capture price_html -%}{% render 'variant-price', variant: v %}{%- endcapture -%}
-        {
-          "id": {{ v.id }},
-          "options": {{ v.options | json }},
-          "available": {{ v.available | json }},
-          "price_html": {{ price_html | strip | json }},
-          "media_id": {{ v.featured_media.id | json }}
-        }{% unless forloop.last %},{% endunless %}
-      {%- endfor -%}
-    ]
-  </script>
 </product-info>
 
 {% stylesheet %}
@@ -230,101 +157,6 @@
   }
   .product__title {
     margin-top: calc(var(--space-2) * -1);
-  }
-  .product__price {
-    font-size: var(--text-lg);
-  }
-  .product__price .price {
-    font-size: inherit;
-  }
-  .product__form {
-    display: grid;
-    gap: var(--space-5);
-    margin-top: var(--space-3);
-  }
-  /* Option buttons need JS to map to a variant; the <select> is the no-JS path */
-  html:not(.js) .product__option,
-  .js .product__variant-select {
-    display: none;
-  }
-  .product__variant-select {
-    display: grid;
-    gap: var(--space-2);
-  }
-  .product__variant-select[hidden] {
-    display: none;
-  }
-  .product__option {
-    display: grid;
-    gap: var(--space-2);
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-  .product__option legend {
-    margin-bottom: var(--space-2);
-    padding: 0;
-  }
-  .product__option-values {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-  .product__swatch {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--control-height);
-    padding: 0 var(--space-5);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: border-color var(--duration-fast) var(--ease-out);
-  }
-  .product__swatch:hover {
-    border-color: var(--color-foreground);
-  }
-  input:checked + .product__swatch {
-    border-color: var(--color-foreground);
-    background: var(--color-foreground);
-    color: var(--color-background);
-  }
-  input:focus-visible + .product__swatch {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
-  }
-  .product__buy {
-    display: flex;
-    gap: var(--space-3);
-  }
-  .product__add {
-    flex: 1;
-  }
-  /* Shopify's unbranded dynamic checkout ("Buy it now") styled as the secondary button */
-  .product .shopify-payment-button__button--unbranded {
-    min-height: var(--control-height);
-    border: 1px solid var(--color-foreground);
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--color-foreground);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-  }
-  .product .shopify-payment-button__button--unbranded:hover:not([disabled]) {
-    background: var(--color-foreground);
-    color: var(--color-background);
-  }
-  .product__add[aria-busy='true'] {
-    opacity: 0.7;
-    cursor: progress;
-  }
-  .product__status {
-    min-height: 1.5em;
-    font-size: var(--text-sm);
-  }
-  .product__status:empty {
-    display: none;
   }
   .product__description {
     margin-top: var(--space-3);
@@ -391,100 +223,6 @@
     }
   }
 {% endstylesheet %}
-
-{% javascript %}
-  class ProductInfo extends HTMLElement {
-    connectedCallback() {
-      this.form = this.querySelector('form[action*="/cart/add"]');
-      this.variants = JSON.parse(this.querySelector('[data-variants]').textContent);
-      this.addEventListener('change', (event) => {
-        if (event.target.name?.startsWith('options[')) this.onOptionChange();
-      });
-      this.form?.addEventListener('submit', (event) => this.onSubmit(event));
-      this.trackGallery();
-    }
-
-    selectedOptions() {
-      return [...this.querySelectorAll('.product__option')].map(
-        (fieldset) => fieldset.querySelector('input:checked')?.value
-      );
-    }
-
-    onOptionChange() {
-      const options = this.selectedOptions();
-      const variant = this.variants.find((v) => v.options.every((value, i) => value === options[i]));
-      const button = this.querySelector('[data-add]');
-      this.querySelector('[data-status]').textContent = '';
-
-      if (!variant) {
-        button.disabled = true;
-        button.textContent = window.theme.strings.unavailable;
-        return;
-      }
-      this.querySelector('[data-variant-id]').value = variant.id;
-      this.querySelector('[data-price]').innerHTML = variant.price_html;
-      button.disabled = !variant.available;
-      button.textContent = variant.available ? window.theme.strings.addToCart : window.theme.strings.soldOut;
-      // Shareable URL for the chosen variant, without adding history entries
-      history.replaceState({}, '', `${this.dataset.url}?variant=${variant.id}`);
-      if (variant.media_id) {
-        document.getElementById(`Media-${this.dataset.section}-${variant.media_id}`)?.scrollIntoView({
-          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-          block: 'nearest',
-          inline: 'start',
-        });
-      }
-    }
-
-    async onSubmit(event) {
-      event.preventDefault();
-      const button = this.querySelector('[data-add]');
-      const status = this.querySelector('[data-status]');
-      if (button.getAttribute('aria-busy') === 'true') return;
-      button.setAttribute('aria-busy', 'true');
-      status.textContent = '';
-      try {
-        const body = new FormData(this.form);
-        // Ask Shopify to render the header in the same response so the cart count updates.
-        // Header lives in a section group, so use its real id from the cart link.
-        const headerId = document.getElementById('HeaderCart')?.dataset.section;
-        if (headerId) {
-          body.append('sections', headerId);
-          body.append('sections_url', window.location.pathname);
-        }
-        const response = await fetch(`${window.Shopify.routes.root}cart/add.js`, {
-          method: 'POST',
-          headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-          body,
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.description || data.message);
-        document.dispatchEvent(new CustomEvent('cart:added', { detail: data }));
-        if (headerId && data.sections?.[headerId]) {
-          const fresh = new DOMParser().parseFromString(data.sections[headerId], 'text/html');
-          const count = fresh.querySelector('#HeaderCart');
-          if (count) document.getElementById('HeaderCart')?.replaceWith(count);
-        }
-        status.textContent = window.theme.strings.added;
-      } catch (error) {
-        status.textContent = error.message || window.theme.strings.error;
-      } finally {
-        button.removeAttribute('aria-busy');
-      }
-    }
-
-    trackGallery() {
-      const list = this.querySelector('.product__media-list');
-      const index = this.querySelector('[data-media-index]');
-      if (!list || !index) return;
-      list.addEventListener('scroll', () => {
-        index.textContent = Math.round(list.scrollLeft / list.clientWidth) + 1;
-      }, { passive: true });
-    }
-  }
-
-  customElements.define('product-info', ProductInfo);
-{% endjavascript %}
 
 {% schema %}
 {

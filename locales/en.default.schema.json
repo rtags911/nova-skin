@@ -34,7 +34,21 @@
     "theme": "Theme",
     "typography": "Typography"
   },
+  "blocks": {
+    "benefit": { "name": "Benefit" },
+    "collection_card": { "name": "Collection" },
+    "faq_item": { "name": "Question" },
+    "testimonial": { "name": "Testimonial" }
+  },
   "sections": {
+    "benefits": { "name": "Product benefits" },
+    "faq": { "name": "FAQ" },
+    "featured_collections": { "name": "Featured collections" },
+    "featured_product": { "name": "Featured product" },
+    "image_with_text": { "name": "Image with text" },
+    "newsletter": { "name": "Newsletter" },
+    "promo_banner": { "name": "Promotional banner" },
+    "testimonials": { "name": "Testimonials" },
     "announcement": {
       "name": "Announcement bar"
     },
@@ -49,10 +63,24 @@
     }
   },
   "info": {
+    "collection_image": "Optional. Uses the collection's image when empty.",
+    "is_sample": "Shows a visible \"Sample\" label. Only turn off for a real customer quote you have permission to use.",
+    "title_override": "Optional. Uses the collection title when empty.",
     "free_shipping_threshold": "Shows a progress bar in the cart. Use 0 to hide it. Keep it in line with your shipping rates and announcement bar.",
     "image_mobile": "Optional. Uses the main image when empty."
   },
   "labels": {
+    "answer": "Answer",
+    "author": "Name",
+    "author_detail": "Detail (e.g. product bought)",
+    "icon": "Icon",
+    "image_position": "Image position",
+    "is_sample": "Sample content",
+    "link_label": "Link label",
+    "product": "Product",
+    "question": "Question",
+    "quote": "Quote",
+    "title": "Title",
     "button_link": "Button link",
     "collection": "Collection",
     "color_scheme": "Colour scheme",
@@ -102,6 +130,13 @@
     "text": "Text"
   },
   "options": {
+    "icon": {
+      "drop": "Drop",
+      "heart": "Heart",
+      "leaf": "Leaf",
+      "recycle": "Recycle",
+      "shield": "Shield"
+    },
     "alignment": {
       "left": "Left",
       "center": "Center",

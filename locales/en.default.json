@@ -21,6 +21,7 @@
     "payment_methods": "Payment methods accepted"
   },
   "products": {
+    "view_details": "View full details",
     "add_to_cart": "Add to cart",
     "added": "Added to your cart.",
     "benefits": "Key benefits",
@@ -41,6 +42,15 @@
   "sections": {
     "announcement": {
       "label": "Announcement"
+    },
+    "featured_collections": {
+      "placeholder": "Collection"
+    },
+    "featured_product": {
+      "placeholder": "Pick a product in the theme editor"
+    },
+    "testimonials": {
+      "sample": "Sample"
     },
     "featured_products": {
       "placeholder_title": "Product title",
