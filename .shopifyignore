@@ -13,7 +13,10 @@
 #   /(templates|sections)/.*\.json/
 
 # Project docs, not theme files
-docs/
-design-process/
-data/
+docs/*
+design-process/*
+data/*
 *.md
+
+# Editor temp files (atomic saves)
+*.tmp.*

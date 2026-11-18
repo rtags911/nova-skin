@@ -1,11 +1,11 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Skeleton",
+    "theme_name": "Nova Skin",
     "theme_version": "0.1.0",
-    "theme_author": "Shopify",
-    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
-    "theme_support_url": "https://support.shopify.com/"
+    "theme_author": "rtags911",
+    "theme_documentation_url": "https://github.com/rtags911/nova-skin",
+    "theme_support_url": "https://github.com/rtags911/nova-skin/issues"
   },
   {
     "name": "t:general.typography",
@@ -16,10 +16,16 @@
       },
       {
         "type": "font_picker",
-        "id": "type_primary_font",
-        "default": "work_sans_n4",
-        "label": "t:general.primary"
+        "id": "type_heading_font",
+        "default": "cormorant_n5",
+        "label": "t:labels.heading_font"
       },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "default": "work_sans_n4",
+        "label": "t:labels.body_font"
+      }
     ]
   },
   {
@@ -30,14 +36,8 @@
         "id": "max_page_width",
         "label": "t:labels.page_width",
         "options": [
-          {
-            "value": "90rem",
-            "label": "t:options.page_width.narrow"
-          },
-          {
-            "value": "110rem",
-            "label": "t:options.page_width.wide"
-          }
+          { "value": "90rem", "label": "t:options.page_width.narrow" },
+          { "value": "110rem", "label": "t:options.page_width.wide" }
         ],
         "default": "90rem"
       },
@@ -46,10 +46,10 @@
         "id": "min_page_margin",
         "min": 10,
         "max": 100,
-        "step": 1,
+        "step": 2,
         "unit": "px",
         "label": "t:labels.page_margin",
-        "default": 20
+        "default": 16
       }
     ]
   },
@@ -57,16 +57,30 @@
     "name": "t:general.colors",
     "settings": [
       {
-        "type": "color",
-        "id": "background_color",
-        "default": "#FFFFFF",
-        "label": "t:labels.background"
-      },
-      {
-        "type": "color",
-        "id": "foreground_color",
-        "default": "#333333",
-        "label": "t:labels.foreground"
+        "type": "color_scheme_group",
+        "id": "color_schemes",
+        "definition": [
+          { "type": "color", "id": "background", "label": "t:labels.background", "default": "#F7F4EF" },
+          { "type": "color_background", "id": "background_gradient", "label": "t:labels.background_gradient" },
+          { "type": "color", "id": "text", "label": "t:labels.text", "default": "#1F1C1A" },
+          { "type": "color", "id": "text_muted", "label": "t:labels.text_muted", "default": "#6B635C" },
+          { "type": "color", "id": "accent", "label": "t:labels.accent", "default": "#8A5A3F" },
+          { "type": "color", "id": "line", "label": "t:labels.line", "default": "#D9D0C3" },
+          { "type": "color", "id": "button", "label": "t:labels.button", "default": "#1F1C1A" },
+          { "type": "color", "id": "button_label", "label": "t:labels.button_label", "default": "#F7F4EF" }
+        ],
+        "role": {
+          "text": "text",
+          "background": { "solid": "background", "gradient": "background_gradient" },
+          "links": "accent",
+          "icons": "text",
+          "primary_button": "button",
+          "on_primary_button": "button_label",
+          "primary_button_border": "button",
+          "secondary_button": "background",
+          "on_secondary_button": "text",
+          "secondary_button_border": "text"
+        }
       },
       {
         "type": "range",
@@ -76,7 +90,7 @@
         "step": 1,
         "unit": "px",
         "label": "t:labels.input_corner_radius",
-        "default": 4
+        "default": 2
       }
     ]
   }

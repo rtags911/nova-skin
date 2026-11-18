@@ -34,8 +34,16 @@
     "typography": "Typography"
   },
   "labels": {
+    "accent": "Accent (links, sale price, focus)",
     "alignment": "Alignment",
     "background": "Background",
+    "background_gradient": "Background gradient",
+    "body_font": "Body font",
+    "button": "Button background",
+    "button_label": "Button label",
+    "heading_font": "Heading font",
+    "line": "Borders and dividers",
+    "text_muted": "Secondary text",
     "foreground": "Foreground",
     "grid_gap": "Grid spacing",
     "grid_item_width": "Grid item width",
