@@ -1,0 +1,15 @@
+{% doc %}
+  Price of one variant (product page). Unlike `price`, never shows "From".
+
+  @param {variant} variant - The variant to price
+{% enddoc %}
+{% if variant.compare_at_price > variant.price %}
+  <span class="price price--sale">
+    <span class="visually-hidden">{{ 'products.sale_price' | t }}</span>
+    <span class="price__current">{{ variant.price | money }}</span>
+    <span class="visually-hidden">{{ 'products.regular_price' | t }}</span>
+    <s class="price__compare text-muted">{{ variant.compare_at_price | money }}</s>
+  </span>
+{% else %}
+  <span class="price"><span class="price__current">{{ variant.price | money }}</span></span>
+{% endif %}

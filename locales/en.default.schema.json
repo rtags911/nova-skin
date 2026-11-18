@@ -43,6 +43,9 @@
     },
     "hero": {
       "name": "Hero banner"
+    },
+    "recommendations": {
+      "name": "Related products"
     }
   },
   "info": {

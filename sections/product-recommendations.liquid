@@ -1,0 +1,80 @@
+{% comment %}
+  Related products. The first render is an empty shell; <product-recommendations> then fetches
+  this same section from the Product Recommendations API (routes.product_recommendations_url),
+  where the `recommendations` object is populated. Search & Discovery can tune the results.
+{% endcomment %}
+<product-recommendations
+  class="recommendations full-width"
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.products_to_show }}&intent=related"
+>
+  {% if recommendations.performed? and recommendations.products_count > 0 %}
+    <div class="recommendations__inner">
+      <h2 class="h3">{{ section.settings.heading }}</h2>
+      <ul class="product-grid product-grid--4" role="list">
+        {% for product in recommendations.products %}
+          <li>{% render 'product-card', product: product %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</product-recommendations>
+
+{% stylesheet %}
+  .recommendations {
+    display: block;
+  }
+  .recommendations__inner {
+    max-width: var(--page-width);
+    margin-inline: auto;
+    padding: var(--space-10) var(--page-margin);
+    border-top: 1px solid var(--color-line);
+  }
+  .recommendations__inner h2 {
+    margin-bottom: var(--space-7);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  class ProductRecommendations extends HTMLElement {
+    connectedCallback() {
+      // Load only when the visitor scrolls near it; it's below the fold
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries[0].isIntersecting) return;
+          observer.disconnect();
+          this.load();
+        },
+        { rootMargin: '0px 0px 400px 0px' }
+      );
+      observer.observe(this);
+    }
+
+    async load() {
+      try {
+        const response = await fetch(this.dataset.url);
+        if (!response.ok) return;
+        const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const fresh = html.querySelector('product-recommendations');
+        if (fresh?.innerHTML.trim()) this.innerHTML = fresh.innerHTML;
+      } catch {
+        // Recommendations are optional; leave the section empty
+      }
+    }
+  }
+  customElements.define('product-recommendations', ProductRecommendations);
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:sections.recommendations.name",
+  "class": "section-recommendations",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:labels.heading", "default": "You may also like" },
+    {
+      "type": "range", "id": "products_to_show", "label": "t:labels.products_to_show",
+      "min": 2, "max": 8, "step": 1, "default": 4
+    }
+  ],
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}

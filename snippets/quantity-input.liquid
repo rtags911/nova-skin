@@ -1,0 +1,79 @@
+{% doc %}
+  Quantity stepper: a real number input (works without JS) with −/+ buttons.
+  The buttons are wired once by <quantity-input>.
+
+  @param {string} id - Input id
+  @param {string} name - Input name, e.g. 'quantity' or 'updates[]'
+  @param {number} [value] - Starting value (default 1)
+  @param {number} [min] - Minimum (default 1; 0 in the cart lets a line be removed)
+  @param {string} [label] - Accessible label (default "Quantity")
+{% enddoc %}
+{% liquid
+  assign value = value | default: 1
+  assign min = min | default: 1
+  if label == blank
+    assign label = 'products.quantity' | t
+  endif
+%}
+<quantity-input class="quantity">
+  <button class="quantity__button" type="button" name="minus" aria-label="{{ 'products.decrease_quantity' | t: product: label }}">−</button>
+  <label class="visually-hidden" for="{{ id }}">{{ label }}</label>
+  <input
+    class="quantity__input"
+    id="{{ id }}"
+    type="number"
+    name="{{ name }}"
+    value="{{ value }}"
+    min="{{ min }}"
+    step="1"
+    inputmode="numeric"
+  >
+  <button class="quantity__button" type="button" name="plus" aria-label="{{ 'products.increase_quantity' | t: product: label }}">+</button>
+</quantity-input>
+
+{% stylesheet %}
+  .quantity {
+    display: inline-flex;
+    align-items: stretch;
+    height: var(--control-height);
+    border: 1px solid var(--color-line);
+  }
+  .quantity__button {
+    width: 2.75rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: var(--text-lg);
+    cursor: pointer;
+  }
+  .quantity__input {
+    width: 3rem;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    text-align: center;
+    -moz-appearance: textfield;
+  }
+  .quantity__input::-webkit-outer-spin-button,
+  .quantity__input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  class QuantityInput extends HTMLElement {
+    connectedCallback() {
+      this.input = this.querySelector('input');
+      this.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+        const before = this.input.value;
+        button.name === 'plus' ? this.input.stepUp() : this.input.stepDown();
+        // Fire change so the product form / cart can react, like a typed value would
+        if (this.input.value !== before) this.input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+  }
+  customElements.define('quantity-input', QuantityInput);
+{% endjavascript %}

@@ -27,15 +27,3 @@
     <s class="price__compare text-muted">{{ variant.compare_at_price | money }}</s>
   {% endif %}
 </p>
-
-{% stylesheet %}
-  .price {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-  }
-  .price--sale .price__current {
-    color: var(--color-accent);
-  }
-{% endstylesheet %}

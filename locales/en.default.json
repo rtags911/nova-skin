@@ -21,6 +21,18 @@
     "payment_methods": "Payment methods accepted"
   },
   "products": {
+    "add_to_cart": "Add to cart",
+    "added": "Added to your cart.",
+    "benefits": "Key benefits",
+    "decrease_quantity": "Decrease {{ product }}",
+    "error": "Couldn't add to cart. Please try again.",
+    "gallery": "Product images",
+    "how_to_use": "How to use",
+    "increase_quantity": "Increase {{ product }}",
+    "ingredients": "Ingredients",
+    "quantity": "Quantity",
+    "unavailable": "Unavailable",
+    "variant": "Size",
     "price_from": "From {{ price }}",
     "regular_price": "Regular price",
     "sale_price": "Sale price",

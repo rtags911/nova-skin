@@ -265,6 +265,18 @@ textarea:focus-visible {
   border-color: var(--color-foreground);
 }
 
+/** Price (price + variant-price snippets) */
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.price--sale .price__current {
+  color: var(--color-accent);
+}
+
 /** Product grid (homepage, collection, recommendations) */
 .product-grid {
   display: grid;
