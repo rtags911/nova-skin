@@ -1,0 +1,51 @@
+{% doc %}
+  Numbered pagination for collection, search and blog pages.
+
+  @param {object} paginate - The paginate object from {% paginate %}
+{% enddoc %}
+{% if paginate.pages > 1 %}
+  <nav class="pagination" aria-label="{{ 'collections.pagination' | t }}">
+    <ul role="list">
+      {% if paginate.previous %}
+        <li><a href="{{ paginate.previous.url }}" aria-label="{{ 'collections.previous' | t }}">‹</a></li>
+      {% endif %}
+      {% for part in paginate.parts %}
+        <li>
+          {% if part.is_link %}
+            <a href="{{ part.url }}">{{ part.title }}</a>
+          {% elsif part.title == paginate.current_page %}
+            <span aria-current="page">{{ part.title }}</span>
+          {% else %}
+            <span>{{ part.title }}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+      {% if paginate.next %}
+        <li><a href="{{ paginate.next.url }}" aria-label="{{ 'collections.next' | t }}">›</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+
+{% stylesheet %}
+  .pagination ul {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-top: var(--space-9);
+    padding: 0;
+    list-style: none;
+  }
+  .pagination a,
+  .pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    text-decoration: none;
+  }
+  .pagination [aria-current='page'] {
+    border-bottom: 1px solid var(--color-foreground);
+  }
+{% endstylesheet %}

@@ -42,6 +42,7 @@
   },
   "sections": {
     "benefits": { "name": "Product benefits" },
+    "contact": { "name": "Contact form" },
     "faq": { "name": "FAQ" },
     "featured_collections": { "name": "Featured collections" },
     "featured_product": { "name": "Featured product" },

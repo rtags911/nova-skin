@@ -1,35 +1,99 @@
 {% comment %}
-  This section is used in the blog template to render the blog page listing all
-  articles within a blog.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/blog
+  Blog listing ("Journal"). Article cards in a grid, with an empty state before the first post.
 {% endcomment %}
+<div class="page-shell full-width">
+  <h1 class="h2 page-shell__title">{{ blog.title | escape }}</h1>
 
-<h1>{{ blog.title }}</h1>
+  {% paginate blog.articles by 9 %}
+    {% if blog.articles.size > 0 %}
+      <ul class="blog-grid" role="list">
+        {% for article in blog.articles %}
+          <li>
+            <a class="blog-card" href="{{ article.url }}">
+              <span class="blog-card__media">
+                {% if article.image %}
+                  {{
+                    article.image
+                    | image_url: width: 1000
+                    | image_tag: widths: '400, 600, 800, 1000', sizes: '(min-width: 990px) 33vw, 100vw', loading: 'lazy', alt: article.image.alt
+                  }}
+                {% else %}
+                  {{ 'lifestyle-2' | placeholder_svg_tag: 'blog-card__placeholder' }}
+                {% endif %}
+              </span>
+              <span class="label text-muted">{{ article.published_at | time_tag: format: 'date' }}</span>
+              <span class="blog-card__title">{{ article.title | escape }}</span>
+              <span class="text-muted">{{ article.excerpt_or_content | strip_html | truncatewords: 24 }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      {% render 'pagination', paginate: paginate %}
+    {% else %}
+      <div class="blog-empty">
+        <p class="text-muted">{{ 'blog.empty' | t }}</p>
+        <a class="button button--secondary" href="{{ routes.all_products_collection_url }}">{{ 'cart.continue' | t }}</a>
+      </div>
+    {% endif %}
+  {% endpaginate %}
+</div>
 
-{% paginate blog.articles by 5 %}
-  {% for article in blog.articles %}
-    <div>
-      {% if article.image %}
-        {{ article.image | image_url: width: 1000 | image_tag }}
-      {% endif %}
-      <h2>
-        {{ article.title | link_to: article.url }}
-      </h2>
-      {% assign date = article.published_at | time_tag: format: 'date' %}
-      <p>{{ 'blog.article_metadata_html' | t: date: date, author: article.author }}</p>
-      <p>{{ article.excerpt }}</p>
-    </div>
-  {% endfor %}
-
-  {%- if paginate.pages > 1 -%}
-    {{- paginate | default_pagination -}}
-  {%- endif -%}
-{% endpaginate %}
+{% stylesheet %}
+  .blog-grid {
+    display: grid;
+    gap: var(--space-9) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 750px) {
+    .blog-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 990px) {
+    .blog-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .blog-card {
+    display: grid;
+    gap: var(--space-2);
+    text-decoration: none;
+  }
+  .blog-card__media {
+    display: block;
+    aspect-ratio: 3 / 2;
+    margin-bottom: var(--space-2);
+    overflow: hidden;
+    background: var(--color-line);
+  }
+  .blog-card__media img,
+  .blog-card__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .blog-card__placeholder {
+    fill: var(--color-foreground-muted);
+    opacity: 0.35;
+  }
+  .blog-card__title {
+    font-family: var(--font-heading--family);
+    font-size: var(--text-xl);
+    line-height: 1.25;
+  }
+  .blog-empty {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
   "name": "t:general.blog",
+  "class": "section-blog",
   "settings": []
 }
 {% endschema %}

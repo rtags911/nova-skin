@@ -74,7 +74,16 @@
     "comment_form_email": "Email",
     "comment_form_name": "Name",
     "comment_form_submit": "Post",
-    "comment_form_title": "Add a comment"
+    "comment_form_title": "Add a comment",
+    "empty": "No posts yet. Check back soon."
+  },
+  "contact": {
+    "email": "Email",
+    "message": "Message",
+    "name": "Name",
+    "order": "Order number (optional)",
+    "send": "Send message",
+    "success": "Thanks for getting in touch. We'll reply within 2 working days."
   },
   "cart": {
     "checkout": "Checkout",

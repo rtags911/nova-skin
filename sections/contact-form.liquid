@@ -1,0 +1,86 @@
+{% comment %}
+  Contact page: page content + Shopify's contact form ({% form 'contact' %}), which emails the
+  store's sender address. Used by templates/page.contact.json; assign that template to the
+  Contact page in Online Store → Pages.
+{% endcomment %}
+<div class="page-shell page-shell--narrow full-width">
+  <h1 class="h2 page-shell__title">{{ page.title | escape }}</h1>
+  {% if page.content != blank %}
+    <div class="rte contact__intro">{{ page.content }}</div>
+  {% endif %}
+
+  {% form 'contact', id: 'ContactForm', class: 'contact__form' %}
+    {% if form.posted_successfully? %}
+      <p class="contact__message" role="status" tabindex="-1">{{ 'contact.success' | t }}</p>
+    {% else %}
+      {% if form.errors %}
+        <div class="contact__message contact__message--error" role="alert">
+          {{ form.errors | default_errors }}
+        </div>
+      {% endif %}
+      <div class="contact__row">
+        <div class="contact__field">
+          <label for="ContactForm-name">{{ 'contact.name' | t }}</label>
+          <input id="ContactForm-name" type="text" name="contact[name]" value="{{ form.name }}" autocomplete="name">
+        </div>
+        <div class="contact__field">
+          <label for="ContactForm-email">{{ 'contact.email' | t }} <span aria-hidden="true">*</span></label>
+          <input id="ContactForm-email" type="email" name="contact[email]" value="{{ form.email }}" autocomplete="email" required>
+        </div>
+      </div>
+      <div class="contact__field">
+        <label for="ContactForm-order">{{ 'contact.order' | t }}</label>
+        <input id="ContactForm-order" type="text" name="contact[order]" value="{{ form.order }}">
+      </div>
+      <div class="contact__field">
+        <label for="ContactForm-body">{{ 'contact.message' | t }} <span aria-hidden="true">*</span></label>
+        <textarea id="ContactForm-body" name="contact[body]" rows="6" required>{{ form.body }}</textarea>
+      </div>
+      <button class="button" type="submit">{{ 'contact.send' | t }}</button>
+    {% endif %}
+  {% endform %}
+</div>
+
+{% stylesheet %}
+  .contact__intro {
+    margin-bottom: var(--space-7);
+  }
+  .contact__form {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .contact__row {
+    display: grid;
+    gap: var(--space-5);
+  }
+  @media (min-width: 750px) {
+    .contact__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .contact__field {
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .contact__field textarea {
+    min-height: 9rem;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+  }
+  .contact__form .button {
+    justify-self: start;
+  }
+  .contact__message--error {
+    color: var(--color-accent);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.contact.name",
+  "class": "section-contact",
+  "settings": [],
+  "enabled_on": { "templates": ["page"] }
+}
+{% endschema %}
