@@ -53,6 +53,8 @@
     "collection": "Collection",
     "color_scheme": "Colour scheme",
     "columns_desktop": "Columns on desktop",
+    "products_per_page": "Products per page",
+    "show_description": "Show collection description",
     "eyebrow": "Eyebrow text",
     "height": "Height",
     "image": "Image",

@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}">
   <head>
+    {% # Lets CSS hide no-JS fallbacks (e.g. filter "Apply" button) before first paint %}
+    <script>document.documentElement.classList.add('js');</script>
+
     {% # Charset, viewport, title, description, social tags %}
     {% render 'meta-tags' %}
 

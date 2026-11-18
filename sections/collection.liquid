@@ -1,47 +1,478 @@
 {% comment %}
-  This section is used in the collection template to render collection page
-  listing all products within a collection.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
+  Collection page: header, filters (Shopify storefront filtering), sort, product grid, pagination.
+  Works as a plain GET form without JS; <collection-facets> upgrades it to in-place updates
+  via the Section Rendering API (?section_id=).
 {% endcomment %}
+{% liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign per_page = section.settings.products_per_page
+%}
+<collection-facets class="collection full-width" data-section="{{ section.id }}">
+  <header class="collection__header">
+    <h1 class="h2">{{ collection.title | escape }}</h1>
+    {% if section.settings.show_description and collection.description != blank %}
+      <div class="collection__description text-muted">{{ collection.description }}</div>
+    {% endif %}
+  </header>
 
-<h1>{{ collection.title }}</h1>
+  {% paginate collection.products by per_page %}
+    <div class="collection__layout">
+      {% # Filters + sort: a GET form to the collection URL %}
+      <div class="facets" id="Facets-{{ section.id }}">
+        <button
+          class="facets__toggle button button--secondary"
+          type="button"
+          aria-expanded="false"
+          aria-controls="FacetsForm-{{ section.id }}"
+        >
+          {{ 'collections.filter_and_sort' | t }}
+          {% assign active_count = 0 %}
+          {% for filter in collection.filters %}
+            {% assign active_count = active_count | plus: filter.active_values.size %}
+            {% if filter.min_value.value or filter.max_value.value %}
+              {% assign active_count = active_count | plus: 1 %}
+            {% endif %}
+          {% endfor %}
+          {% if active_count > 0 %}<span>({{ active_count }})</span>{% endif %}
+        </button>
 
-<div class="collection-products">
-  {% paginate collection.products by 20 %}
-    {% for product in collection.products %}
-      <div class="collection-product">
-        {% if product.featured_image %}
-          {% render 'image',
-            class: 'collection-product__image',
-            image: product.featured_image,
-            url: product.url,
-            width: 400,
-            height: 400,
-            crop: 'center'
-          %}
-        {% endif %}
-        <div class="collection-product__content">
-          <p>{{ product.title | escape | link_to: product.url }}</p>
-          <p>{{ product.price | money }}</p>
-        </div>
+        <form class="facets__form" action="{{ collection.url }}" method="get" id="FacetsForm-{{ section.id }}">
+          <div class="facets__group">
+            <label class="facets__label label" for="SortBy-{{ section.id }}">{{ 'collections.sort_by' | t }}</label>
+            <select name="sort_by" id="SortBy-{{ section.id }}">
+              {% for option in collection.sort_options %}
+                <option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>
+                  {{ option.name | escape }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          {% for filter in collection.filters %}
+            {% case filter.type %}
+              {% when 'list', 'boolean' %}
+                <fieldset class="facets__group">
+                  <legend class="facets__label label">{{ filter.label | escape }}</legend>
+                  <ul role="list">
+                    {% for value in filter.values %}
+                      {% assign input_id = 'Filter-' | append: section.id | append: '-' | append: filter.param_name | append: '-' | append: forloop.index | handleize %}
+                      <li>
+                        <input
+                          type="checkbox"
+                          id="{{ input_id }}"
+                          name="{{ value.param_name }}"
+                          value="{{ value.value | escape }}"
+                          {% if value.active %}checked{% endif %}
+                          {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                        >
+                        <label for="{{ input_id }}">
+                          {{ value.label | escape }} <span class="text-muted">({{ value.count }})</span>
+                        </label>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </fieldset>
+              {% when 'price_range' %}
+                {% liquid
+                  assign currency = cart.currency.symbol
+                  assign range_max = filter.range_max | money_without_currency | remove: ','
+                %}
+                <fieldset class="facets__group">
+                  <legend class="facets__label label">{{ filter.label | escape }}</legend>
+                  <div class="facets__price">
+                    <label>
+                      <span class="visually-hidden">{{ 'collections.from' | t }}</span>
+                      <span aria-hidden="true">{{ currency }}</span>
+                      <input
+                        type="number"
+                        name="{{ filter.min_value.param_name }}"
+                        id="Price-min-{{ section.id }}"
+                        inputmode="decimal"
+                        min="0"
+                        max="{{ range_max }}"
+                        placeholder="0"
+                        {% if filter.min_value.value %}
+                          value="{{ filter.min_value.value | money_without_currency | remove: ',' }}"
+                        {% endif %}
+                      >
+                    </label>
+                    <span aria-hidden="true">–</span>
+                    <label>
+                      <span class="visually-hidden">{{ 'collections.to' | t }}</span>
+                      <span aria-hidden="true">{{ currency }}</span>
+                      <input
+                        type="number"
+                        name="{{ filter.max_value.param_name }}"
+                        id="Price-max-{{ section.id }}"
+                        inputmode="decimal"
+                        min="0"
+                        max="{{ range_max }}"
+                        placeholder="{{ range_max }}"
+                        {% if filter.max_value.value %}
+                          value="{{ filter.max_value.value | money_without_currency | remove: ',' }}"
+                        {% endif %}
+                      >
+                    </label>
+                  </div>
+                </fieldset>
+            {% endcase %}
+          {% endfor %}
+
+          {% # Hidden once JS is running; changes apply instantly then %}
+          <button class="button facets__apply" type="submit">{{ 'collections.apply' | t }}</button>
+        </form>
       </div>
-    {% endfor %}
 
-    {{ paginate | default_pagination }}
+      <div class="collection__results" id="Results-{{ section.id }}" aria-live="polite">
+        <div class="collection__meta">
+          <p class="text-muted">{{ 'collections.product_count' | t: count: collection.products_count }}</p>
+
+          {% # Active filters as removable pills %}
+          {% capture pills %}
+            {% for filter in collection.filters %}
+              {% for value in filter.active_values %}
+                <li><a class="pill" href="{{ value.url_to_remove }}">{{ value.label | escape }} <span aria-hidden="true">×</span><span class="visually-hidden">{{ 'collections.remove_filter' | t }}</span></a></li>
+              {% endfor %}
+              {% if filter.type == 'price_range' %}
+                {% if filter.min_value.value or filter.max_value.value %}
+                  <li><a class="pill" href="{{ filter.url_to_remove }}">
+                    {{ filter.min_value.value | default: 0 | money }}–{{ filter.max_value.value | default: filter.range_max | money }}
+                    <span aria-hidden="true">×</span><span class="visually-hidden">{{ 'collections.remove_filter' | t }}</span>
+                  </a></li>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endcapture %}
+          {% if pills contains '<li>' %}
+            <ul class="collection__pills" role="list">
+              {{ pills }}
+              <li><a class="pill pill--clear" href="{{ collection.url }}?sort_by={{ sort_by }}">{{ 'collections.clear_all' | t }}</a></li>
+            </ul>
+          {% endif %}
+        </div>
+
+        {% if collection.products.size > 0 %}
+          <ul class="product-grid product-grid--{{ section.settings.columns_desktop }}" role="list">
+            {% for product in collection.products %}
+              <li>
+                {% if forloop.index <= 2 %}
+                  {% render 'product-card', product: product, eager: true %}
+                {% else %}
+                  {% render 'product-card', product: product %}
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="collection__empty">
+            <p>{{ 'collections.empty' | t }}</p>
+            <a class="button button--secondary" href="{{ collection.url }}">{{ 'collections.clear_all' | t }}</a>
+          </div>
+        {% endif %}
+
+        {% if paginate.pages > 1 %}
+          <nav class="pagination" aria-label="{{ 'collections.pagination' | t }}">
+            <ul role="list">
+              {% if paginate.previous %}
+                <li><a href="{{ paginate.previous.url }}" aria-label="{{ 'collections.previous' | t }}">‹</a></li>
+              {% endif %}
+              {% for part in paginate.parts %}
+                <li>
+                  {% if part.is_link %}
+                    <a href="{{ part.url }}">{{ part.title }}</a>
+                  {% elsif part.title == paginate.current_page %}
+                    <span aria-current="page">{{ part.title }}</span>
+                  {% else %}
+                    <span>{{ part.title }}</span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+              {% if paginate.next %}
+                <li><a href="{{ paginate.next.url }}" aria-label="{{ 'collections.next' | t }}">›</a></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
+    </div>
   {% endpaginate %}
-</div>
+</collection-facets>
 
 {% stylesheet %}
-  .collection-products {
+  .collection {
+    display: block;
+    max-width: var(--page-width);
+    margin-inline: auto;
+    padding: var(--space-9) var(--page-margin) var(--space-10);
+  }
+  .collection__header {
+    margin-bottom: var(--space-7);
+  }
+  .collection__description {
+    max-width: 40rem;
+    margin-top: var(--space-3);
+  }
+  .collection__layout {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    gap: var(--space-6);
+  }
+  .collection ul {
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Filters: always visible without JS; with JS the mobile toggle shows/hides them */
+  .facets__toggle {
+    display: none;
+  }
+  .js .facets__toggle {
+    display: inline-flex;
+  }
+  .js .facets:not(.is-open) .facets__form {
+    display: none;
+  }
+  .facets__form {
+    display: grid;
+    gap: var(--space-6);
+    padding-top: var(--space-5);
+  }
+  .facets__group {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .facets__label {
+    margin-bottom: var(--space-1);
+    padding: 0;
+    font-weight: var(--font-body--weight-bold);
+  }
+  .facets__group li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 2.75rem;
+  }
+  .facets__group input[type='checkbox'] {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    accent-color: var(--color-foreground);
+  }
+  .facets__group input:disabled + label {
+    opacity: 0.45;
+  }
+  .facets__price {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .facets__price label {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .facets__price input {
+    width: 100%;
+    min-width: 0;
+    padding-inline: var(--space-2);
+  }
+  .js .facets__apply {
+    display: none;
+  }
+
+  /* Results */
+  .collection__results {
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+  .collection__results[aria-busy='true'] {
+    opacity: 0.5;
+  }
+  .collection__meta {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    font-size: var(--text-sm);
+  }
+  .collection__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .pill:hover {
+    border-color: var(--color-foreground);
+  }
+  .pill--clear {
+    border-color: transparent;
+    text-decoration: underline;
+  }
+  .collection__empty {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+    padding-block: var(--space-9);
+  }
+
+  /* Pagination */
+  .pagination ul {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-top: var(--space-9);
+  }
+  .pagination a,
+  .pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    text-decoration: none;
+  }
+  .pagination [aria-current='page'] {
+    border-bottom: 1px solid var(--color-foreground);
+  }
+
+  @media (min-width: 990px) {
+    .collection__layout {
+      grid-template-columns: 15rem minmax(0, 1fr);
+      gap: var(--space-9);
+      align-items: start;
+    }
+    /* Sidebar is always open on desktop */
+    .facets {
+      position: sticky;
+      top: 6rem;
+    }
+    .js .facets__toggle {
+      display: none;
+    }
+    .js .facets:not(.is-open) .facets__form {
+      display: grid;
+    }
+    .facets__form {
+      padding-top: 0;
+    }
+    .collection .product-grid--4 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1200px) {
+    .collection .product-grid--4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 {% endstylesheet %}
+
+{% javascript %}
+  // Progressive enhancement: apply filters/sort in place via the Section Rendering API.
+  class CollectionFacets extends HTMLElement {
+    connectedCallback() {
+      this.sectionId = this.dataset.section;
+      this.onChange = this.onChange.bind(this);
+      this.onClick = this.onClick.bind(this);
+      this.addEventListener('change', this.onChange);
+      this.addEventListener('click', this.onClick);
+      this.onPopState = () => this.render(location.search.slice(1), false);
+      window.addEventListener('popstate', this.onPopState);
+    }
+
+    disconnectedCallback() {
+      window.removeEventListener('popstate', this.onPopState);
+    }
+
+    onChange(event) {
+      const form = event.target.closest('form');
+      if (!form) return;
+      // Price inputs fire on every keystroke; wait for the user to pause
+      clearTimeout(this.timer);
+      const delay = event.target.type === 'number' ? 500 : 0;
+      this.timer = setTimeout(() => {
+        const params = new URLSearchParams(new FormData(form));
+        for (const [key, value] of [...params]) if (value === '') params.delete(key);
+        this.render(params.toString());
+      }, delay);
+    }
+
+    onClick(event) {
+      const toggle = event.target.closest('.facets__toggle');
+      if (toggle) {
+        const open = toggle.getAttribute('aria-expanded') !== 'true';
+        toggle.setAttribute('aria-expanded', open);
+        toggle.parentElement.classList.toggle('is-open', open);
+        return;
+      }
+      // Pills, "clear all" and pagination links stay on this page
+      const link = event.target.closest('.pill, .pagination a, .collection__empty a');
+      if (!link) return;
+      event.preventDefault();
+      this.render(new URL(link.href).searchParams.toString());
+    }
+
+    async render(search, push = true) {
+      const results = this.querySelector('.collection__results');
+      results?.setAttribute('aria-busy', 'true');
+      const focusId = document.activeElement?.id;
+      const openState = this.querySelector('.facets')?.classList.contains('is-open');
+      // Only the latest request may paint; a slow earlier one must not overwrite it
+      this.controller?.abort();
+      this.controller = new AbortController();
+      try {
+        const params = new URLSearchParams(search);
+        params.set('section_id', this.sectionId);
+        const response = await fetch(`${location.pathname}?${params}`, { signal: this.controller.signal });
+        if (!response.ok) throw new Error(response.status);
+        const html = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const fresh = html.querySelector('collection-facets');
+        if (!fresh) throw new Error('missing section');
+        this.innerHTML = fresh.innerHTML;
+        if (openState) {
+          this.querySelector('.facets').classList.add('is-open');
+          this.querySelector('.facets__toggle').setAttribute('aria-expanded', 'true');
+        }
+        if (focusId) document.getElementById(focusId)?.focus();
+        if (push) history.pushState({}, '', search ? `${location.pathname}?${search}` : location.pathname);
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+        // Fall back to a normal page load
+        location.search = search;
+      }
+    }
+  }
+
+  customElements.define('collection-facets', CollectionFacets);
+{% endjavascript %}
 
 {% schema %}
 {
   "name": "t:general.collection",
-  "settings": []
+  "class": "section-collection",
+  "settings": [
+    { "type": "checkbox", "id": "show_description", "label": "t:labels.show_description", "default": true },
+    {
+      "type": "range", "id": "products_per_page", "label": "t:labels.products_per_page",
+      "min": 6, "max": 36, "step": 3, "default": 12
+    },
+    {
+      "type": "select", "id": "columns_desktop", "label": "t:labels.columns_desktop", "default": "4",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ]
+    }
+  ]
 }
 {% endschema %}
