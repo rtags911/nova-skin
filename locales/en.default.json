@@ -1,4 +1,7 @@
 {
+  "general": {
+    "home": "Home"
+  },
   "accessibility": {
     "skip_to_content": "Skip to content"
   },
@@ -118,6 +121,7 @@
     "from": "From",
     "next": "Next page",
     "pagination": "Pagination",
+    "products_heading": "Products",
     "previous": "Previous page",
     "product_count": {
       "one": "{{ count }} product",
@@ -140,6 +144,7 @@
     "enter": "Enter"
   },
   "search": {
+    "results_heading": "Search results",
     "title": "Search",
     "placeholder": "Search articles, pages, or products",
     "submit": "Search",

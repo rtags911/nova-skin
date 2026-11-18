@@ -22,6 +22,7 @@
       </p>
 
       {% if search.results_count > 0 %}
+        <h2 class="visually-hidden">{{ 'search.results_heading' | t }}</h2>
         <ul class="product-grid product-grid--4" role="list">
           {% for result in search.results %}
             <li>

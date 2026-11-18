@@ -28,7 +28,7 @@
         {% if product.description != blank %}
           <p class="featured-product__description text-muted">{{ product.description | strip_html | truncatewords: 30 }}</p>
         {% endif %}
-        {% render 'product-form', product: product, section_id: section.id %}
+        {% render 'product-form', product: product, section_id: section.id, show_dynamic_checkout: section.settings.show_dynamic_checkout %}
         <a class="featured-product__more" href="{{ product.url }}">{{ 'products.view_details' | t }}</a>
       {% else %}
         <h2 class="h2">{{ 'sections.featured_product.placeholder' | t }}</h2>
@@ -88,6 +88,13 @@
   "settings": [
     { "type": "product", "id": "product", "label": "t:labels.product" },
     { "type": "text", "id": "eyebrow", "label": "t:labels.eyebrow", "default": "Bestseller" },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "t:labels.show_dynamic_checkout",
+      "info": "t:info.show_dynamic_checkout",
+      "default": false
+    },
     { "type": "color_scheme", "id": "color_scheme", "label": "t:labels.color_scheme", "default": "scheme-2" }
   ],
   "presets": [{ "name": "t:sections.featured_product.name" }]

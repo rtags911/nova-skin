@@ -17,10 +17,13 @@
             {% case media.media_type %}
               {% when 'image' %}
                 {% liquid
+                  # First image is the likely LCP element: load it eagerly and first
                   if forloop.first
                     assign loading = 'eager'
+                    assign priority = 'high'
                   else
                     assign loading = 'lazy'
+                    assign priority = 'auto'
                   endif
                   assign alt = media.alt | default: product.title | escape
                 %}
@@ -31,6 +34,7 @@
                     widths: '450, 650, 900, 1200, 1500, 1800',
                     sizes: '(min-width: 990px) 55vw, 100vw',
                     loading: loading,
+                    fetchpriority: priority,
                     alt: alt
                 }}
               {% when 'video', 'external_video' %}
@@ -58,7 +62,7 @@
     <h1 class="product__title h2">{{ product.title | escape }}</h1>
     {% render 'rating-stars', product: product %}
 
-    {% render 'product-form', product: product, section_id: section.id %}
+    {% render 'product-form', product: product, section_id: section.id, show_dynamic_checkout: section.settings.show_dynamic_checkout %}
 
     {% if product.description != blank %}
       <div class="product__description rte">{{ product.description }}</div>
@@ -247,7 +251,15 @@
   "name": "t:general.product",
   "class": "section-product",
   "blocks": [{ "type": "@app" }],
-  "settings": [],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "t:labels.show_dynamic_checkout",
+      "info": "t:info.show_dynamic_checkout",
+      "default": true
+    }
+  ],
   "disabled_on": {
     "groups": ["header", "footer"]
   }

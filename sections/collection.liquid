@@ -152,6 +152,8 @@
         </div>
 
         {% if collection.products.size > 0 %}
+          {% # Keeps heading levels in order (h1 → h2 → card h3) for screen-reader navigation %}
+          <h2 class="visually-hidden">{{ 'collections.products_heading' | t }}</h2>
           <ul class="product-grid product-grid--{{ section.settings.columns_desktop }}" role="list">
             {% for product in collection.products %}
               <li>

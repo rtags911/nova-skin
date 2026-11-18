@@ -21,6 +21,18 @@
     {% # Charset, viewport, title, description, social tags %}
     {% render 'meta-tags' %}
 
+    {% # Preload the two fonts the first screen needs (heading text is often the LCP element) %}
+    {% unless settings.type_heading_font.system? and settings.type_body_font.system? %}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    {% endunless %}
+    {% # preload_tag also sends a Link header (early hint) and adds crossorigin itself for fonts %}
+    {% unless settings.type_heading_font.system? %}
+      {{ settings.type_heading_font | font_url | preload_tag: as: 'font', type: 'font/woff2' }}
+    {% endunless %}
+    {% unless settings.type_body_font.system? %}
+      {{ settings.type_body_font | font_url | preload_tag: as: 'font', type: 'font/woff2' }}
+    {% endunless %}
+
     {% # Fonts, colour schemes and layout settings as CSS variables %}
     {% render 'css-variables' %}
 

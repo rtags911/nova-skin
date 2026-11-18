@@ -1,0 +1,72 @@
+{% doc %}
+  JSON-LD for search engines, by page type. Product JSON-LD comes from Shopify's
+  `structured_data` filter in meta-tags; this adds what that filter doesn't cover.
+  Values go through `json` so quotes and special characters are always escaped.
+{% enddoc %}
+{%- liquid
+  assign home = request.origin | append: routes.root_url
+  assign socials = 'instagram,tiktok,facebook,pinterest,youtube' | split: ','
+-%}
+
+{%- if request.page_type == 'index' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": {{ shop.name | json }},
+      "url": {{ home | json }}
+      {%- if settings.share_image -%}
+        ,"logo": {{ settings.share_image | image_url: width: 600 | prepend: 'https:' | json }}
+      {%- endif -%}
+      {%- capture same_as -%}
+        {%- for platform in socials -%}
+          {%- assign key = 'social_' | append: platform | append: '_link' -%}
+          {%- if settings[key] != blank -%}{{ settings[key] | json }},{%- endif -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      {%- if same_as != blank -%}
+        ,"sameAs": [{{ same_as | remove_last: ',' }}]
+      {%- endif %}
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "url": {{ home | json }},
+      {%- # The {placeholder} braces can't sit inside a Liquid output tag, so they stay in plain text -%}
+      {%- assign search_target = request.origin | append: routes.search_url | append: '?q=' -%}
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ search_target }}{search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+{%- endif -%}
+
+{%- if request.page_type == 'collection' or request.page_type == 'product' -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": {{ 'general.home' | t | json }}, "item": {{ home | json }} }
+        {%- if collection -%}
+          ,{ "@type": "ListItem", "position": 2, "name": {{ collection.title | json }}, "item": {{ request.origin | append: collection.url | json }} }
+        {%- endif -%}
+        {%- if request.page_type == 'product' -%}
+          {%- if collection -%}{%- assign pos = 3 -%}{%- else -%}{%- assign pos = 2 -%}{%- endif -%}
+          ,{ "@type": "ListItem", "position": {{ pos }}, "name": {{ product.title | json }}, "item": {{ request.origin | append: product.url | json }} }
+        {%- endif %}
+      ]
+    }
+  </script>
+{%- endif -%}
+
+{%- if request.page_type == 'article' -%}
+  <script type="application/ld+json">
+    {{ article | structured_data }}
+  </script>
+{%- endif -%}

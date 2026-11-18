@@ -109,6 +109,7 @@
   {
     "name": "t:general.social",
     "settings": [
+      { "type": "image_picker", "id": "share_image", "label": "t:labels.share_image", "info": "t:info.share_image" },
       { "type": "url", "id": "social_instagram_link", "label": "t:labels.social_instagram" },
       { "type": "url", "id": "social_tiktok_link", "label": "t:labels.social_tiktok" },
       { "type": "url", "id": "social_facebook_link", "label": "t:labels.social_facebook" },

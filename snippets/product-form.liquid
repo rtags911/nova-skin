@@ -5,6 +5,7 @@
 
   @param {product} product - The product
   @param {string} section_id - Id of the rendering section (keeps ids unique)
+  @param {boolean} [show_dynamic_checkout] - "Buy it now" / wallet buttons (default true; ~390 KB of Shopify JS)
 {% enddoc %}
 {% liquid
   assign variant = product.selected_or_first_available_variant
@@ -65,7 +66,9 @@
     </button>
   </div>
 
-  {{ form | payment_button }}
+  {% unless show_dynamic_checkout == false %}
+    {{ form | payment_button }}
+  {% endunless %}
 
   <p class="product__status" role="status" data-status></p>
 {% endform %}

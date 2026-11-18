@@ -65,6 +65,8 @@
   },
   "info": {
     "collection_image": "Optional. Uses the collection's image when empty.",
+    "show_dynamic_checkout": "\"Buy it now\" and wallet buttons (Shop Pay, PayPal…). Faster checkout, but adds about 390 KB of Shopify scripts to the page.",
+    "share_image": "Used for link previews (Facebook, X, Slack…) on pages without their own image. 1200×628 px works best.",
     "is_sample": "Shows a visible \"Sample\" label. Only turn off for a real customer quote you have permission to use.",
     "title_override": "Optional. Uses the collection title when empty.",
     "free_shipping_threshold": "Shows a progress bar in the cart. Use 0 to hide it. Keep it in line with your shipping rates and announcement bar.",
@@ -77,6 +79,8 @@
     "icon": "Icon",
     "image_position": "Image position",
     "is_sample": "Sample content",
+    "show_dynamic_checkout": "Show dynamic checkout buttons",
+    "share_image": "Default social sharing image",
     "link_label": "Link label",
     "product": "Product",
     "question": "Question",
