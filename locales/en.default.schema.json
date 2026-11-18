@@ -49,6 +49,7 @@
     }
   },
   "info": {
+    "free_shipping_threshold": "Shows a progress bar in the cart. Use 0 to hide it. Keep it in line with your shipping rates and announcement bar.",
     "image_mobile": "Optional. Uses the main image when empty."
   },
   "labels": {
@@ -59,6 +60,7 @@
     "products_per_page": "Products per page",
     "show_description": "Show collection description",
     "eyebrow": "Eyebrow text",
+    "free_shipping_threshold": "Free shipping threshold",
     "height": "Height",
     "image": "Image",
     "image_mobile": "Mobile image",

@@ -95,6 +95,18 @@
     ]
   },
   {
+    "name": "t:general.cart",
+    "settings": [
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "t:labels.free_shipping_threshold",
+        "info": "t:info.free_shipping_threshold",
+        "default": 60
+      }
+    ]
+  },
+  {
     "name": "t:general.social",
     "settings": [
       { "type": "url", "id": "social_instagram_link", "label": "t:labels.social_instagram" },

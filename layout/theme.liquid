@@ -8,6 +8,8 @@
       window.theme = {
         strings: {
           addToCart: {{ 'products.add_to_cart' | t | json }},
+          cartError: {{ 'cart.error' | t | json }},
+          cartUpdated: {{ 'cart.updated' | t | json }},
           added: {{ 'products.added' | t | json }},
           error: {{ 'products.error' | t | json }},
           soldOut: {{ 'products.sold_out' | t | json }},
@@ -38,5 +40,7 @@
     </main>
 
     {% sections 'footer-group' %}
+
+    {% section 'cart-drawer' %}
   </body>
 </html>

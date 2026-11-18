@@ -1,0 +1,300 @@
+{% doc %}
+  Cart contents shared by the cart drawer and the /cart page.
+  Without JS it's a normal form: quantities post `updates[]` to /cart, remove links use
+  item.url_to_remove, and `checkout` goes to checkout. <cart-items> upgrades it to
+  /cart/change.js updates that re-render this section and the header in one request.
+
+  @param {string} section_id - Id of the section rendering this (for Section Rendering API)
+{% enddoc %}
+{% liquid
+  assign threshold = settings.free_shipping_threshold | times: 100
+  assign remaining = threshold | minus: cart.total_price
+  assign remaining_money = remaining | money
+  if threshold > 0
+    assign progress = cart.total_price | times: 100 | divided_by: threshold
+    if progress > 100
+      assign progress = 100
+    endif
+  endif
+%}
+<cart-items class="cart-items" data-section="{{ section_id }}">
+  {% if cart.item_count == 0 %}
+    <div class="cart-items__empty">
+      <p>{{ 'cart.empty' | t }}</p>
+      <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'cart.continue' | t }}</a>
+    </div>
+  {% else %}
+    <form class="cart-items__form" action="{{ routes.cart_url }}" method="post" id="CartForm-{{ section_id }}" novalidate>
+      {% if threshold > 0 %}
+        {% # shortcut: threshold is in the store's base currency; with multi-currency Markets, convert or hide it %}
+        <div class="cart-items__shipping">
+          <p>
+            {% if remaining > 0 %}
+              {{ 'cart.free_shipping_remaining_html' | t: amount: remaining_money }}
+            {% else %}
+              {{ 'cart.free_shipping_unlocked' | t }}
+            {% endif %}
+          </p>
+          <div class="cart-items__bar" role="presentation"><span style="--progress: {{ progress }}%"></span></div>
+        </div>
+      {% endif %}
+
+      <ul class="cart-items__list" role="list">
+        {% for item in cart.items %}
+          {% assign qty_id = 'CartQty-' | append: section_id | append: '-' | append: forloop.index %}
+          <li class="cart-item" data-key="{{ item.key }}">
+            <a class="cart-item__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+              {% if item.image %}
+                {{
+                  item.image
+                  | image_url: width: 240
+                  | image_tag: widths: '120, 180, 240', sizes: '6rem', loading: 'lazy', alt: ''
+                }}
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'cart-item__placeholder' }}
+              {% endif %}
+            </a>
+
+            <div class="cart-item__info">
+              <a class="cart-item__title" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+              {% unless item.product.has_only_default_variant %}
+                <p class="cart-item__variant text-muted">{{ item.variant.title | escape }}</p>
+              {% endunless %}
+              <p class="cart-item__price">
+                {% if item.original_line_price > item.final_line_price %}
+                  <s class="text-muted">{{ item.original_line_price | money }}</s>
+                {% endif %}
+                {{ item.final_line_price | money }}
+              </p>
+
+              <div class="cart-item__actions">
+                {% render 'quantity-input',
+                  id: qty_id,
+                  name: 'updates[]',
+                  value: item.quantity,
+                  min: 0,
+                  label: item.product.title
+                %}
+                <a class="cart-item__remove" href="{{ item.url_to_remove }}" data-remove>
+                  {{ 'cart.remove' | t }}
+                  <span class="visually-hidden">{{ item.product.title | escape }}</span>
+                </a>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="cart-items__footer">
+        <p class="cart-items__subtotal">
+          <span>{{ 'cart.subtotal' | t }}</span>
+          <span>{{ cart.total_price | money_with_currency }}</span>
+        </p>
+        <p class="cart-items__note text-muted">{{ 'cart.taxes_note' | t }}</p>
+        {% # Only needed without JS; with JS quantity changes apply instantly %}
+        <button class="button button--secondary cart-items__update" type="submit" name="update">{{ 'cart.update' | t }}</button>
+        <button class="button cart-items__checkout" type="submit" name="checkout">{{ 'cart.checkout' | t }}</button>
+      </div>
+    </form>
+  {% endif %}
+  <p class="visually-hidden" role="status" data-cart-status></p>
+</cart-items>
+
+{% stylesheet %}
+  .cart-items {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .cart-items__form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .cart-items__empty {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+    padding-block: var(--space-6);
+  }
+  .cart-items__shipping {
+    display: grid;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .cart-items__bar {
+    height: 3px;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+  .cart-items__bar span {
+    display: block;
+    height: 100%;
+    background: var(--color-foreground);
+    transform: scaleX(var(--progress));
+    transform-origin: left;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+  .cart-items__list {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cart-item {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+  .cart-item__media {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+  .cart-item__media img,
+  .cart-item__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cart-item__placeholder {
+    fill: var(--color-foreground-muted);
+    opacity: 0.35;
+  }
+  .cart-item__info {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+  }
+  .cart-item__title {
+    font-size: var(--text-base);
+    text-decoration: none;
+  }
+  .cart-item__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-2);
+  }
+  .cart-item__remove {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--color-foreground-muted);
+  }
+  .cart-items__footer {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+  }
+  .cart-items__subtotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-lg);
+  }
+  .cart-items__note {
+    font-size: var(--text-xs);
+  }
+  .js .cart-items__update {
+    display: none;
+  }
+  .cart-items[aria-busy='true'] .cart-items__list,
+  .cart-items[aria-busy='true'] .cart-items__footer {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  // Applies quantity changes and removals with /cart/change.js and re-renders this
+  // section plus the header from the same response (Section Rendering API).
+  // Cart writes are queued, never aborted: aborting a fetch doesn't stop Shopify applying it.
+  // Lines are addressed by item.key, which stays stable when other lines are removed.
+  class CartItems extends HTMLElement {
+    static queue = Promise.resolve();
+    static timers = new Map();
+    static pending = 0;
+
+    connectedCallback() {
+      this.addEventListener('change', (event) => {
+        if (event.target.name !== 'updates[]') return;
+        const key = event.target.closest('[data-key]').dataset.key;
+        // Coalesce rapid −/+ clicks on the same line into one request
+        clearTimeout(CartItems.timers.get(key));
+        CartItems.timers.set(key, setTimeout(() => this.update(key, event.target.value), 300));
+      });
+      this.addEventListener('click', (event) => {
+        const remove = event.target.closest('[data-remove]');
+        if (!remove) return;
+        event.preventDefault();
+        const key = remove.closest('[data-key]').dataset.key;
+        clearTimeout(CartItems.timers.get(key)); // a pending change to this line is moot
+        this.update(key, 0);
+      });
+    }
+
+    update(key, quantity) {
+      CartItems.timers.delete(key);
+      CartItems.pending += 1;
+      this.setAttribute('aria-busy', 'true');
+      CartItems.queue = CartItems.queue.then(() => this.request(key, quantity)).finally(() => {
+        // Stay busy until every queued write has landed
+        CartItems.pending -= 1;
+        if (CartItems.pending === 0) document.querySelectorAll('cart-items').forEach((el) => el.removeAttribute('aria-busy'));
+      });
+      return CartItems.queue;
+    }
+
+    async request(key, quantity) {
+      const sectionId = this.dataset.section;
+      const headerId = document.getElementById('HeaderCart')?.dataset.section;
+      // Always refresh the drawer too, so the /cart page and drawer never disagree
+      const sections = [...new Set([sectionId, 'cart-drawer', headerId])].filter(Boolean);
+      // Re-rendering replaces the controls; remember where keyboard focus was
+      const focusId = document.activeElement?.id;
+      try {
+        const response = await fetch(`${window.Shopify.routes.root}cart/change.js`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ id: key, quantity: Number(quantity), sections, sections_url: location.pathname }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.description || data.message);
+        CartItems.renderSections(data.sections);
+        // Same control if it still exists, otherwise the first control left in the cart
+        const target = (focusId && document.getElementById(focusId)) || this.querySelector('input, a, button');
+        target?.focus();
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
+      } catch (error) {
+        this.querySelector('[data-cart-status]').textContent = error.message || window.theme.strings.cartError;
+      }
+    }
+
+    // Swap fresh section HTML into the page: every <cart-items> for that section, and the header cart link
+    static renderSections(sections = {}) {
+      for (const [id, html] of Object.entries(sections)) {
+        if (!html) continue;
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const freshItems = doc.querySelector('cart-items');
+        if (freshItems) {
+          document.querySelectorAll(`cart-items[data-section="${id}"]`).forEach((el) => (el.innerHTML = freshItems.innerHTML));
+        }
+        const freshCart = doc.getElementById('HeaderCart');
+        if (freshCart) document.getElementById('HeaderCart')?.replaceWith(freshCart);
+        const freshCount = doc.querySelector('[data-cart-count]');
+        if (freshCount) document.querySelectorAll('[data-cart-count]').forEach((el) => (el.textContent = freshCount.textContent));
+      }
+      const status = document.querySelector('cart-items [data-cart-status]');
+      if (status) status.textContent = window.theme.strings.cartUpdated;
+    }
+  }
+  customElements.define('cart-items', CartItems);
+{% endjavascript %}

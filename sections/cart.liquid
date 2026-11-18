@@ -1,37 +1,27 @@
 {% comment %}
-  This section is used in the cart template to render /cart page with an
-  overview of the items in customer's cart.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/cart
+  /cart page. The no-JS cart, and the page checkout links fall back to.
+  Shares its contents with the drawer through the cart-items snippet.
 {% endcomment %}
+<div class="cart-page full-width">
+  <h1 class="h2">{{ 'cart.title' | t }}</h1>
+  {% render 'cart-items', section_id: section.id %}
+</div>
 
-<h1>{{ 'cart.title' | t }}</h1>
-
-<form action="{{ routes.cart_url }}" method="post">
-  <table>
-    {% for item in cart.items %}
-      <tr>
-        <td>
-          {% render 'image', image: item.image, url: item.url %}
-        </td>
-        <td>
-          <p>{{ item.product.title }}</p>
-          {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-        </td>
-        <td>
-          <input type="text" name="updates[]" value="{{ item.quantity }}">
-          <input type="submit" value="{{ 'cart.update' | t }}">
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
-
-  <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-</form>
+{% stylesheet %}
+  .cart-page {
+    max-width: 48rem;
+    margin-inline: auto;
+    padding: var(--space-9) var(--page-margin) var(--space-10);
+  }
+  .cart-page h1 {
+    margin-bottom: var(--space-6);
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
   "name": "t:general.cart",
+  "class": "section-cart",
   "settings": []
 }
 {% endschema %}
