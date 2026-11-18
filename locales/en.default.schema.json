@@ -37,10 +37,29 @@
   "sections": {
     "announcement": {
       "name": "Announcement bar"
+    },
+    "featured_products": {
+      "name": "Featured products"
+    },
+    "hero": {
+      "name": "Hero banner"
     }
   },
+  "info": {
+    "image_mobile": "Optional. Uses the main image when empty."
+  },
   "labels": {
+    "button_link": "Button link",
+    "collection": "Collection",
     "color_scheme": "Colour scheme",
+    "columns_desktop": "Columns on desktop",
+    "eyebrow": "Eyebrow text",
+    "height": "Height",
+    "image": "Image",
+    "image_mobile": "Mobile image",
+    "overlay": "Image overlay",
+    "products_to_show": "Products to show",
+    "show_view_all": "Show \"View all\" link",
     "heading": "Heading",
     "newsletter_heading": "Newsletter heading",
     "show_newsletter": "Show newsletter sign-up",
@@ -91,6 +110,7 @@
     },
     "size": {
       "large": "Large",
+      "medium": "Medium",
       "small": "Small"
     },
     "text_style": {

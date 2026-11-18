@@ -1,20 +1,30 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "settings": {}
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "eyebrow": "New: Lumen 10 Vitamin C",
+        "heading": "Skin, considered.",
+        "text": "<p>Clean, effective formulas for every skin, made in small batches.</p>",
+        "button_label": "Shop serums",
+        "button_link": "shopify://collections/serums",
+        "height": "large",
+        "align": "left",
+        "overlay": 0,
+        "color_scheme": "scheme-2"
+      }
+    },
+    "bestsellers": {
+      "type": "featured-products",
+      "settings": {
+        "heading": "Bestsellers",
+        "collection": "bestsellers",
+        "products_to_show": 4,
+        "columns_desktop": "4",
+        "show_view_all": true,
+        "color_scheme": "scheme-1"
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["hero", "bestsellers"]
 }

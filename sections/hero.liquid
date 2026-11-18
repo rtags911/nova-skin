@@ -1,0 +1,174 @@
+{% liquid
+  assign image = section.settings.image
+  assign mobile_image = section.settings.image_mobile | default: image
+%}
+<div class="hero hero--{{ section.settings.height }} hero--{{ section.settings.align }} full-width color-{{ section.settings.color_scheme }}">
+  <div class="hero__media" style="--overlay: {{ section.settings.overlay | divided_by: 100.0 }};">
+    {% if image != blank %}
+      <picture>
+        <source
+          media="(min-width: 750px)"
+          srcset="{{ image | image_url: width: 1200 }} 1200w, {{ image | image_url: width: 1800 }} 1800w, {{ image | image_url: width: 2400 }} 2400w, {{ image | image_url: width: 3000 }} 3000w"
+          sizes="100vw"
+        >
+        {{
+          mobile_image
+          | image_url: width: 1200
+          | image_tag:
+            widths: '450, 750, 1000, 1200',
+            sizes: '100vw',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: image.alt,
+            class: 'hero__image'
+        }}
+      </picture>
+    {% elsif request.design_mode %}
+      {% # Placeholder only in the theme editor; the live page falls back to the scheme background %}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'hero__image hero__placeholder' }}
+    {% endif %}
+  </div>
+
+  <div class="hero__content">
+    {% if section.settings.eyebrow != blank %}
+      <p class="label">{{ section.settings.eyebrow }}</p>
+    {% endif %}
+    {% if section.settings.heading != blank %}
+      <h1 class="hero__heading">{{ section.settings.heading }}</h1>
+    {% endif %}
+    {% if section.settings.text != blank %}
+      <div class="hero__text">{{ section.settings.text }}</div>
+    {% endif %}
+    {% if section.settings.button_label != blank %}
+      <a class="button" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+        {{ section.settings.button_label }}
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .hero {
+    position: relative;
+    display: grid;
+    overflow: hidden;
+  }
+  .hero > * {
+    grid-area: 1 / 1;
+  }
+  .hero--small {
+    min-height: 26rem;
+  }
+  .hero--medium {
+    min-height: min(36rem, 80svh);
+  }
+  .hero--large {
+    min-height: min(48rem, 92svh);
+  }
+  .hero__media {
+    position: relative;
+  }
+  .hero__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: var(--overlay);
+  }
+  .hero__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero__placeholder {
+    fill: var(--color-foreground-muted);
+    background: var(--color-line);
+    opacity: 0.4;
+  }
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    align-content: end;
+    justify-items: start;
+    gap: var(--space-4);
+    width: 100%;
+    max-width: var(--page-width);
+    margin-inline: auto;
+    padding: var(--space-10) var(--page-margin);
+  }
+  .hero--center .hero__content {
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+  }
+  .hero__heading {
+    max-width: 14ch;
+  }
+  .hero--center .hero__heading {
+    max-width: 18ch;
+  }
+  .hero__text {
+    max-width: 36rem;
+    font-size: var(--text-lg);
+  }
+  .hero__content .button {
+    margin-top: var(--space-3);
+  }
+
+  /* Entrance: content rises in once; off under reduced motion via critical.css */
+  .hero__content > * {
+    animation: hero-rise var(--duration-slow) var(--ease-out) both;
+  }
+  .hero__content > :nth-child(2) { animation-delay: 60ms; }
+  .hero__content > :nth-child(3) { animation-delay: 120ms; }
+  .hero__content > :nth-child(4) { animation-delay: 180ms; }
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.hero.name",
+  "class": "section-hero",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "t:labels.image" },
+    { "type": "image_picker", "id": "image_mobile", "label": "t:labels.image_mobile", "info": "t:info.image_mobile" },
+    {
+      "type": "range", "id": "overlay", "label": "t:labels.overlay",
+      "min": 0, "max": 70, "step": 5, "unit": "%", "default": 0
+    },
+    { "type": "text", "id": "eyebrow", "label": "t:labels.eyebrow", "default": "New: Lumen 10 Vitamin C" },
+    { "type": "text", "id": "heading", "label": "t:labels.heading", "default": "Skin, considered." },
+    {
+      "type": "richtext", "id": "text", "label": "t:labels.text",
+      "default": "<p>Clean, effective formulas for every skin, made in small batches.</p>"
+    },
+    { "type": "text", "id": "button_label", "label": "t:labels.button_label", "default": "Shop serums" },
+    { "type": "url", "id": "button_link", "label": "t:labels.button_link" },
+    {
+      "type": "select", "id": "height", "label": "t:labels.height", "default": "large",
+      "options": [
+        { "value": "small", "label": "t:options.size.small" },
+        { "value": "medium", "label": "t:options.size.medium" },
+        { "value": "large", "label": "t:options.size.large" }
+      ]
+    },
+    {
+      "type": "select", "id": "align", "label": "t:labels.alignment", "default": "left",
+      "options": [
+        { "value": "left", "label": "t:options.alignment.left" },
+        { "value": "center", "label": "t:options.alignment.center" }
+      ]
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:labels.color_scheme", "default": "scheme-2" }
+  ],
+  "presets": [{ "name": "t:sections.hero.name" }]
+}
+{% endschema %}

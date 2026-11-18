@@ -1,0 +1,41 @@
+{% doc %}
+  Product price with sale and "from" handling.
+
+  @param {product} product - The product to price
+{% enddoc %}
+{% liquid
+  assign variant = product.selected_or_first_available_variant
+  assign on_sale = false
+  if variant.compare_at_price > variant.price
+    assign on_sale = true
+  endif
+%}
+<p class="price{% if on_sale %} price--sale{% endif %}">
+  {% if on_sale %}
+    <span class="visually-hidden">{{ 'products.sale_price' | t }}</span>
+  {% endif %}
+  <span class="price__current">
+    {% if product.price_varies %}
+      {% assign min_price = product.price_min | money %}
+      {{ 'products.price_from' | t: price: min_price }}
+    {% else %}
+      {{ variant.price | money }}
+    {% endif %}
+  </span>
+  {% if on_sale %}
+    <span class="visually-hidden">{{ 'products.regular_price' | t }}</span>
+    <s class="price__compare text-muted">{{ variant.compare_at_price | money }}</s>
+  {% endif %}
+</p>
+
+{% stylesheet %}
+  .price {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+  }
+  .price--sale .price__current {
+    color: var(--color-accent);
+  }
+{% endstylesheet %}

@@ -1,0 +1,120 @@
+{% doc %}
+  Product card for grids (homepage, collection, recommendations).
+  Shows the second image on hover (pointer devices only) and falls back to
+  Shopify's placeholder artwork when the product has no media.
+
+  @param {product} product - The product to show
+  @param {string} [sizes] - The image `sizes` attribute for the grid it sits in
+  @param {boolean} [eager] - Load the image eagerly (first row above the fold)
+{% enddoc %}
+{% liquid
+  assign sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  if eager
+    assign loading = 'eager'
+  else
+    assign loading = 'lazy'
+  endif
+  assign second = product.media[1]
+  assign alt = product.featured_media.alt | default: product.title | escape
+%}
+<article class="product-card">
+  <div class="product-card__media">
+    {% if product.featured_media %}
+      {{
+        product.featured_media
+        | image_url: width: 1200
+        | image_tag:
+          widths: '300, 450, 600, 800, 1000, 1200',
+          sizes: sizes,
+          loading: loading,
+          alt: alt,
+          class: 'product-card__image'
+      }}
+      {% if second and second.media_type == 'image' %}
+        {{
+          second
+          | image_url: width: 1200
+          | image_tag:
+            widths: '300, 450, 600, 800, 1000, 1200',
+            sizes: sizes,
+            loading: 'lazy',
+            alt: '',
+            class: 'product-card__image product-card__image--hover'
+        }}
+      {% endif %}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'product-card__image product-card__placeholder' }}
+    {% endif %}
+  </div>
+
+  <div class="product-card__info">
+    <h3 class="product-card__title">
+      <a href="{{ product.url }}">{{ product.title | escape }}</a>
+    </h3>
+    {% render 'price', product: product %}
+    {% unless product.available %}
+      <p class="product-card__badge label text-muted">{{ 'products.sold_out' | t }}</p>
+    {% endunless %}
+  </div>
+</article>
+
+{% stylesheet %}
+  .product-card {
+    position: relative;
+    display: grid;
+    gap: var(--space-3);
+  }
+  .product-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+  .product-card__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity var(--duration-slow) var(--ease-out), transform var(--duration-slow) var(--ease-out);
+  }
+  .product-card__placeholder {
+    fill: var(--color-foreground-muted);
+    opacity: 0.35;
+  }
+  .product-card__image--hover {
+    opacity: 0;
+  }
+  @media (hover: hover) {
+    .product-card:hover .product-card__image--hover {
+      opacity: 1;
+    }
+    .product-card:hover .product-card__image:only-child {
+      transform: scale(1.03);
+    }
+  }
+  .product-card__title {
+    font-family: var(--font-body--family);
+    font-size: var(--text-base);
+    font-weight: var(--font-body--weight);
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+  .product-card__title a {
+    text-decoration: none;
+  }
+  /* Whole card is clickable; the title link stays the single tab stop */
+  .product-card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .product-card__title a:focus-visible {
+    outline: none;
+  }
+  .product-card:has(.product-card__title a:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+{% endstylesheet %}

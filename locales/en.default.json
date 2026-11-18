@@ -20,9 +20,19 @@
   "footer": {
     "payment_methods": "Payment methods accepted"
   },
+  "products": {
+    "price_from": "From {{ price }}",
+    "regular_price": "Regular price",
+    "sale_price": "Sale price",
+    "sold_out": "Sold out"
+  },
   "sections": {
     "announcement": {
       "label": "Announcement"
+    },
+    "featured_products": {
+      "placeholder_title": "Product title",
+      "view_all": "View all"
     }
   },
   "404": {
